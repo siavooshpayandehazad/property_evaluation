@@ -6,5 +6,5 @@ Contributers:
 	* Behrad Niazmand
 
 	License: GNU GENERAL PUBLIC LICENSE Version 3
-	
-	Copyright (C) 2016 as collective work done by authors.
+
+	Copyright (C) 2017 as collective work done by authors.
