@@ -1,9 +1,9 @@
 # property evaluation
 
 Contributers:
-	* Siavoosh Payandeh Azad
-	* Tara Ghasempouri
-	* Behrad Niazmand
+   * Siavoosh Payandeh Azad
+   * Tara Ghasempouri
+   * Behrad Niazmand
 
 	License: GNU GENERAL PUBLIC LICENSE Version 3
 
