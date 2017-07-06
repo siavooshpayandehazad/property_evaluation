@@ -38,7 +38,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 	initial_file_name = tb_file_name.split(".")[0]
 
 	for prop in prop_dictionary:
-		tb_name = "results/"+initial_file_name+"_"+str(prop)+".vhd"
+		tb_name = "results/TB/"+initial_file_name+"_"+str(prop)+".vhd"
 		print "-----------------------------------------------------"
 		print "starting generation of Testbench file:", tb_name
 		tb_file = open(tb_name, "w")
@@ -57,7 +57,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("end property_tb;\n\n")
 
 		tb_file.write("architecture behavior of multiplier_and_tester_tb is\n\n")
-		
+
 		tb_file.write("-- component decleration\n")
 		tb_file.write("component breadmaker is\n")
 		tb_file.write("prot (\n")
@@ -79,6 +79,13 @@ def generate_tb(tb_file_name, prop_dictionary):
 
 		tb_file.write("    reset <= '1' after 1 ns;\n")
 		tb_file.write("\n\n-- instantiate the compoent\n")
+		tb_file.write("\n\n-- applying the stimuli\n")
+		tb_file.write("    stimuli :process\n")
+		tb_file.write("    begin\n")
+		for item in prop_dictionary[prop]:
+			tb_file.write("        "+item.split()[0]+" <= " +item.split()[2]+";\n")
+		tb_file.write("        wait;\n")
+		tb_file.write("    end process;\n")
 		tb_file.write("\nEND;\n")
 
 		print "finished generation of Testbench... closing the file!"
@@ -106,4 +113,6 @@ def parse_arguments(sys_args, package_arguments):
 def generate_folders():
 	if not os.path.exists("results"):
 		os.makedirs("results")
+	if not os.path.exists("results/TB"):
+		os.makedirs("results/TB")
 	return None
