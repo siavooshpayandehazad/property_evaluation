@@ -57,11 +57,29 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("end property_tb;\n\n")
 
 		tb_file.write("architecture behavior of multiplier_and_tester_tb is\n\n")
-		# define the component here
+		
+		tb_file.write("-- component decleration\n")
+		tb_file.write("component breadmaker is\n")
+		tb_file.write("prot (\n")
 
-		tb_file.write("begin\n\n")
+		tb_file.write(");\n")
+		tb_file.write("end component;\n\n")
+		tb_file.write("signal clk, reset : std_logic := '0';\n")
+		tb_file.write("constant clk_period : time := 1 ns;\n")
+		tb_file.write("\nbegin\n\n")
 
-		tb_file.write("END;\n")
+		tb_file.write("-- clock generation!\n")
+		tb_file.write("    clk_process :process\n")
+		tb_file.write("    begin\n")
+		tb_file.write("        clk <= '0';\n")
+		tb_file.write("        wait for clk_period/2;\n")
+		tb_file.write("        clk <= '1';\n")
+		tb_file.write("        wait for clk_period/2;\n")
+		tb_file.write("    end process;\n\n")
+
+		tb_file.write("    reset <= '1' after 1 ns;\n")
+		tb_file.write("\n\n-- instantiate the compoent\n")
+		tb_file.write("\nEND;\n")
 
 		print "finished generation of Testbench... closing the file!"
 		tb_file.close()
