@@ -34,6 +34,36 @@ def generate_prop_dictionary(prop_file_name):
 	prop_file.close()
 	return prop_dict
 
+def generate_do_file(tb_file_name, prop_dictionary):
+	initial_file_name = tb_file_name.split(".")[0]
+	for prop in prop_dictionary:
+		sim_length = len(prop_dictionary[prop])+10
+		tb_name = "results/TB/"+initial_file_name+"_"+str(prop)+".vhd"
+		do_file = open("results/do_files/sim_"+str(prop)+".do", "w")
+
+		do_file.write("---------------------------------------------\n")
+		do_file.write("-- THIS FILE IS GENERATED AUTOMATICALLY    --\n")
+		do_file.write("--           DO NOT EDIT                   --\n")
+		do_file.write("---------------------------------------------\n")
+		do_file.write("\n")
+		do_file.write("vlib work\n")
+		do_file.write("\n")
+		do_file.write("# Include files and compile them\n")
+		do_file.write("# vlog -work work -cover bcesfx  \"DESIGN\"\n")
+		do_file.write("vcom \""+tb_name+"\"\n")
+		do_file.write("\n")
+		do_file.write("# Start the simulation\n")
+		do_file.write("vsim work.property_tb\n")
+		do_file.write("\n")
+		do_file.write("# Run the simulation\n")
+		do_file.write("run "+str(sim_length)+" ns\n")
+		do_file.write("\n")
+		do_file.write("# Exit Modelsim after simulation\n")
+		do_file.write("exit\n")
+
+	return None
+
+
 def generate_tb(tb_file_name, prop_dictionary):
 	initial_file_name = tb_file_name.split(".")[0]
 
@@ -83,7 +113,8 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("    stimuli :process\n")
 		tb_file.write("    begin\n")
 		for item in prop_dictionary[prop]:
-			tb_file.write("        "+item.split()[0]+" <= " +item.split()[2]+";\n")
+			if ">" not in item and "<" not in item:
+				tb_file.write("        "+item.split()[0]+" <= "+item.split()[2]+";\n")
 		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n")
 		tb_file.write("\nEND;\n")
@@ -115,4 +146,6 @@ def generate_folders():
 		os.makedirs("results")
 	if not os.path.exists("results/TB"):
 		os.makedirs("results/TB")
+	if not os.path.exists("results/do_files"):
+		os.makedirs("results/do_files")
 	return None
