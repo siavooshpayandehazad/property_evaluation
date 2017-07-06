@@ -49,6 +49,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("vlib work\n")
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
+		# TODO: update the design accordingly
 		do_file.write("# vlog -work work -cover bcesfx  \"DESIGN\"\n")
 		do_file.write("vcom \""+tb_name+"\"\n")
 		do_file.write("\n")
@@ -87,13 +88,14 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("end property_tb;\n\n")
 
 		tb_file.write("architecture behavior of multiplier_and_tester_tb is\n\n")
-
+		# TODO: Add the compoenent decleration
 		tb_file.write("-- component decleration\n")
 		tb_file.write("component breadmaker is\n")
 		tb_file.write("prot (\n")
 
 		tb_file.write(");\n")
 		tb_file.write("end component;\n\n")
+		# TODO: Add the signals
 		tb_file.write("signal clk, reset : std_logic := '0';\n")
 		tb_file.write("constant clk_period : time := 1 ns;\n")
 		tb_file.write("\nbegin\n\n")
@@ -108,6 +110,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("    end process;\n\n")
 
 		tb_file.write("    reset <= '1' after 1 ns;\n")
+		# TODO: Instatiate the components
 		tb_file.write("\n\n-- instantiate the compoent\n")
 		tb_file.write("\n\n-- applying the stimuli\n")
 		tb_file.write("    stimuli :process\n")
@@ -144,8 +147,17 @@ def parse_arguments(sys_args, package_arguments):
 def generate_folders():
 	if not os.path.exists("results"):
 		os.makedirs("results")
+
 	if not os.path.exists("results/TB"):
 		os.makedirs("results/TB")
+	else:
+		file_list = [vhd_file for vhd_file in os.listdir("results/TB") if vhd_file.endswith(".vhd")]
+		for vhd_file in file_list:
+			os.remove('results/TB/'+vhd_file)
 	if not os.path.exists("results/do_files"):
 		os.makedirs("results/do_files")
+	else:
+		file_list = [do_file for do_file in os.listdir("results/do_files") if do_file.endswith(".do")]
+		for do_file in file_list:
+			os.remove('results/do_files/'+do_file)
 	return None
