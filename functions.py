@@ -2,7 +2,12 @@ import sys
 import copy
 import os
 
+
 def report_prop_dictonary(prop_dict):
+	"""
+	prints the property dictionary to the console
+	returns None
+	"""
 	print "-----------------------------------------------------"
 	print "parsed properties:"
 	for item in prop_dict.keys():
@@ -12,14 +17,24 @@ def report_prop_dictonary(prop_dict):
 		print 
 	return None
 
+
 def print_help():
+	"""
+	prints tools man to the console!
+	returns None
+	"""
 	print "This program parses the properties fed in rtf format and generates a testbench for each property"
 	print "program arguments:"
 	print "\t-i [filename]:	recieves property file in rtf format. Important note, the properties should not use any internal signals!" 
 	print "\t-o [filename]:	generated vhdl testbench" 
 	return None
 
+
 def generate_prop_dictionary(prop_file_name):
+	"""
+	Parses the property file fed by the user and returns a dictionary with 
+	property number as the key and a list of conditions as value.
+	"""
 	print "-----------------------------------------------------"
 	print "starting parsing the property file!"
 	prop_file = open(prop_file_name, 'r')
@@ -34,7 +49,12 @@ def generate_prop_dictionary(prop_file_name):
 	prop_file.close()
 	return prop_dict
 
+
 def generate_do_file(tb_file_name, prop_dictionary):
+	"""
+	generates a do file for modelsim for each property and stores it in results/do_files/
+	returns None
+	"""
 	initial_file_name = tb_file_name.split(".")[0]
 	for prop in prop_dictionary:
 		sim_length = len(prop_dictionary[prop])+10
@@ -66,6 +86,10 @@ def generate_do_file(tb_file_name, prop_dictionary):
 
 
 def generate_tb(tb_file_name, prop_dictionary):
+	"""
+	generates a test bench for each property and stores it in results/TB/
+	returns None
+	"""
 	initial_file_name = tb_file_name.split(".")[0]
 
 	for prop in prop_dictionary:
@@ -126,7 +150,13 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.close()
 	return None
 
+
 def parse_arguments(sys_args, package_arguments):
+	"""
+	Parses the argumets passed to the tool and updates the package arguments accordingly
+	Returns package arguement in form of a dictionary
+	"""
+
 	if "--help" in sys.argv[:]:
 		print_help()
 		sys.exit()
@@ -144,7 +174,21 @@ def parse_arguments(sys_args, package_arguments):
 		package_arguments["testbench_file"] = "tb.vhd"
 	return package_arguments
 
+
 def generate_folders():
+	"""
+	Generates the folder structure as follows:
+	
+	|_results
+		|
+		|---TB 				for storing all generated testbenches
+		|---do_files 		for storing all generated testbenches
+
+	cleans the folders if some files are remaining from previous runs. however, it only
+	removes the files with .vhd extention from TB folder and with .do extention from 
+	do_files folder.
+	returns None
+	"""
 	if not os.path.exists("results"):
 		os.makedirs("results")
 
