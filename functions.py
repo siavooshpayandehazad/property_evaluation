@@ -344,3 +344,37 @@ def parse_cov_reports():
 		print string.rjust(`b[i]`, 7)[:int(log10(np.amax(b)))+5], '| ', '#'*int(70*h[i-1]/np.amax(h))
 	print string.rjust(`b[bins]`, 7)[:int(log10(np.amax(b)))+5] 
 	print "-------------------------------------------------------"
+	return None
+
+
+def parse_det_cov_report():
+	"""
+	parses the detailed coverage and prints the list of properties that hit each statement in the design
+	"""
+	covg_dictionary = {}
+	for filename in os.listdir("results/cov_files/detailed"):
+		if filename.endswith(".txt"):
+			file = open("results/cov_files/detailed/"+filename, 'r')
+			enable = False
+			tb_number = int(filename[filename.index("_")+1:filename.index(".")][:-4])
+			for line in file:
+				if "Branch Coverage:" in line:
+					enable = False
+					break
+				if enable:
+					parameters = []
+					for item in line[:50].split(" "):
+						if item != '' : 
+							parameters.append(item)
+					if len(parameters)> 1:
+						if parameters[2] != '***0***':
+							if int(parameters[0]) not in covg_dictionary.keys():
+								covg_dictionary[int(parameters[0])]= [tb_number]
+							else:
+								if tb_number not in covg_dictionary[int(parameters[0])]:
+									covg_dictionary[int(parameters[0])].append(tb_number)
+				if "Statement Coverage for" in line:
+					enable = True
+	for index in sorted(covg_dictionary.keys()):
+		print index, "\t", sorted(covg_dictionary[index])
+	return None
