@@ -42,7 +42,44 @@ def generate_prop_dictionary(prop_file_name):
 	prop_dict = {}
 	for line in prop_file:
 		if "G" in line:
-			prop =  line.split("->")[0].split("(")[-1].split(")")[0].split("&")
+			#prop =  line.split("->")[0].split("(")[-1].split(")")[0].split("&")
+			prop = []
+			new_line = line.split("->")[0][2:]
+			if "X" not in new_line:
+				properties = ""
+				for char in new_line:
+					if char != "(" and char != ")":
+						properties += char
+				# print "no X:  ",properties.split("&")
+				prop += properties.split("&")
+				# print "--------------------"
+			elif "(" not in new_line and ")" not in new_line:
+				# print "X, no par:  ", new_line.split("&")
+				prop += new_line.split("&")
+				# print "--------------------"
+			else:
+				#print "==> ", new_line
+				now_properties = ""
+				for char in new_line.split("X")[0][:-2]:
+					if char != "(" and char != ")":
+						now_properties += char
+				for item in now_properties.split("&"):
+					if item[0] == " ":
+						item = item[1:]
+					prop.append(item)
+				#print "now:", now_properties.split("&")
+
+				later_properties = ""
+				for char in new_line.split("X")[1]:
+					if char != "(" and char != ")":
+						later_properties += char
+				for item in later_properties.split("&"):
+					if item[0] == " ":
+						item = item[1:]
+					prop.append("X"+item)
+				# print new_line
+				# print prop
+				# print "--------------------"
 			prop_dict[counter] = copy.deepcopy(prop)
 			counter += 1
 	print "finished parsing property file... closing file!"
@@ -70,7 +107,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
 		# TODO: update the design accordingly
-		do_file.write("# vlog -work work -cover bcesfx  \"DESIGN\"\n")
+		do_file.write("# vlog -work work -cover bcesfx  \"arbiter.v\"\n")
 		do_file.write("vcom \""+tb_name+"\"\n")
 		do_file.write("\n")
 		do_file.write("# Start the simulation\n")
@@ -79,6 +116,9 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("# Run the simulation\n")
 		do_file.write("run "+str(sim_length)+" ns\n")
 		do_file.write("\n")
+		do_file.write("# save the coverage reports\n")
+		do_file.write("coverage save coverage_"+str(prop)+".ucdb\n")
+		do_file.write("vcover report -output coverage_"+str(prop)+".txt coverage_"+str(prop)+".ucdb\n\n")
 		do_file.write("# Exit Modelsim after simulation\n")
 		do_file.write("exit\n")
 
@@ -112,14 +152,22 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("end property_tb;\n\n")
 
 		tb_file.write("architecture behavior of multiplier_and_tester_tb is\n\n")
-		# TODO: Add the compoenent decleration
-		tb_file.write("-- component decleration\n")
-		tb_file.write("component breadmaker is\n")
-		tb_file.write("prot (\n")
 
+		tb_file.write("-- component decleration\n")
+		tb_file.write("component arbiter is\n")
+		tb_file.write("prot (\n")
+		tb_file.write("    clk, rst: in std_logic,\n")
+		tb_file.write("    Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id: in std_logic_vector(2 downto 0),\n")
+		tb_file.write("    Llength, Nlength, Elength, Wlength, Slength: in std_logic_vector(11 downto 0),\n")
+		tb_file.write("    Lreq, Nreq, Ereq, Wreq, Sreq: in std_logic,\n")
+		tb_file.write("    nextstate: out std_logic_vector(5 downto 0)\n")
 		tb_file.write(");\n")
 		tb_file.write("end component;\n\n")
-		# TODO: Add the signals
+
+		tb_file.write("signal nextstate: std_logic_vector(5 downto 0);\n")
+		tb_file.write("signal Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id: std_logic_vector(2 downto 0);\n")
+		tb_file.write("signal Llength, Nlength, Elength, Wlength, Slength: std_logic_vector(11 downto 0);\n")
+		tb_file.write("signal Lreq, Nreq, Ereq, Wreq, Sreq: std_logic;\n")
 		tb_file.write("signal clk, reset : std_logic := '0';\n")
 		tb_file.write("constant clk_period : time := 1 ns;\n")
 		tb_file.write("\nbegin\n\n")
@@ -133,17 +181,27 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("        wait for clk_period/2;\n")
 		tb_file.write("    end process;\n\n")
 
-		tb_file.write("    reset <= '1' after 1 ns;\n")
 		# TODO: Instatiate the components
 		tb_file.write("\n\n-- instantiate the compoent\n")
+		tb_file.write("DUT: arbiter\n")
+		tb_file.write("     port map(clk, rst, Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id, Llength, Nlength, Elength, Wlength, Slength, Lreq, Nreq, Ereq, Wreq, Sreq, nextstate);")
+
 		tb_file.write("\n\n-- applying the stimuli\n")
-		tb_file.write("    stimuli :process\n")
-		tb_file.write("    begin\n")
+		tb_file.write("    process begin\n")
+		next_clk = False
 		for item in prop_dictionary[prop]:
-			if ">" not in item and "<" not in item:
-				tb_file.write("        "+item.split()[0]+" <= "+item.split()[2]+";\n")
-		tb_file.write("        wait;\n")
-		tb_file.write("    end process;\n")
+			wait = ""
+			if 'X' in item:
+				item = item [item.index("X")+1:]
+				if next_clk == False :
+					tb_file.write("        wait for 1 ns;\n")
+					next_clk = True
+			if "!" in item:
+				index = item.index("!")
+				tb_file.write("        "+item.split()[0][index+1:]+" <= '0';\n")
+			else:
+				tb_file.write("        "+item.split()[0]+" <= '1';\n")
+		tb_file.write("    end process;\n\n")
 		tb_file.write("\nEND;\n")
 
 		print "finished generation of Testbench... closing the file!"
