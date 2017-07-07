@@ -7,5 +7,6 @@ def run_simulator(number_of_properties, tb_file_name):
 		do_file_name = "results/do_files/sim_"+str(i)+".do"
 		return_value = os.system("vsim -do " + do_file_name + " -batch")
 		os.rename("coverage_"+str(i)+".txt", "results/cov_files/coverage_"+str(i)+".txt")
+		os.rename("coverage_"+str(i)+"_det.txt", "results/cov_files/detailed/coverage_"+str(i)+"_det.txt")
 		os.rename("coverage_"+str(i)+".ucdb", "results/cov_files/coverage_"+str(i)+".ucdb")
 	return None

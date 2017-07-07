@@ -1,7 +1,9 @@
 import sys
 import copy
 import os
-
+import numpy as np
+import string
+from math import log10
 
 def report_prop_dictonary(prop_dict):
 	"""
@@ -121,6 +123,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("# save the coverage reports\n")
 		do_file.write("coverage save coverage_"+str(prop)+".ucdb\n")
 		do_file.write("vcover report -output coverage_"+str(prop)+".txt coverage_"+str(prop)+".ucdb\n\n")
+		do_file.write("vcover report -detail -output coverage_"+str(prop)+"_det.txt coverage_"+str(prop)+".ucdb\n\n")
 		do_file.write("# Exit Modelsim after simulation\n")
 		do_file.write("exit\n")
 
@@ -279,9 +282,16 @@ def generate_folders():
 	if not os.path.exists("results/cov_files"):
 		os.makedirs("results/cov_files")
 	else:
-		file_list = [cov_file for cov_file in os.listdir("results/cov_files")]
+		file_list = [cov_file for cov_file in os.listdir("results/cov_files")if cov_file.endswith(".txt") or cov_file.endswith(".ucdb")]
 		for cov_file in file_list:
 			os.remove('results/cov_files/'+cov_file)
+
+	if not os.path.exists("results/cov_files/detailed"):
+		os.makedirs("results/cov_files/detailed")
+	else:
+		file_list = [cov_file for cov_file in os.listdir("results/cov_files/detailed")if cov_file.endswith(".txt")]
+		for cov_file in file_list:
+			os.remove('results/cov_files/detailed/'+cov_file)
 	return None
 
 
@@ -308,6 +318,7 @@ def parse_cov_reports():
 
 	max_total = 0
 	best_property = None
+	total_coverage_list = []
 	print "#\tstmt\tbranch\tstate\ttrans\ttggl\ttotal"
 	print "-------------------------------------------------------"
 	for item in range(0, len(covg_dictionary.keys())):
@@ -316,9 +327,20 @@ def parse_cov_reports():
 		for percentage in covg_dictionary[item]:
 			print percentage,"\t",
 		print 
+		total_coverage_list.append(float(covg_dictionary[item][-1][:-1]))
 		if max_total < float(covg_dictionary[item][-1][:-1]):
 			max_total = float(covg_dictionary[item][-1][:-1])
 			best_property = item
 	print "-------------------------------------------------------"
 	print "max total coverage for single property:", max_total
 	print "best property:", best_property
+
+	print "-------------------------------------------------------"
+	print "histogram of total coverage of properties"
+	bins = 20
+	h,b = np.histogram(sorted(total_coverage_list+[max_total+1]), bins)
+
+	for i in range (0, bins-1):
+		print string.rjust(`b[i]`, 7)[:int(log10(np.amax(b)))+5], '| ', '#'*int(70*h[i-1]/np.amax(h))
+	print string.rjust(`b[bins]`, 7)[:int(log10(np.amax(b)))+5] 
+	print "-------------------------------------------------------"
