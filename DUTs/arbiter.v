@@ -11,8 +11,8 @@
 * $Date: 2015-11-22 21:24:28 +0200 (Sun, 22 Nov 2015) $
 * $Author: ranga $
 *********************/
-`include "../include/parameters.v"
-`include "../include/state_defines.v"
+`include "parameters.v"
+`include "state_defines.v"
 
 module arbiter(clk, rst,
                 Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id,

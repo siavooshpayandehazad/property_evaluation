@@ -283,3 +283,42 @@ def generate_folders():
 		for cov_file in file_list:
 			os.remove('results/cov_files/'+cov_file)
 	return None
+
+
+def parse_cov_reports():
+	covg_dictionary = {}
+	for filename in os.listdir("results/cov_files"):
+		if filename.endswith(".txt"):
+			property_number = int(filename[filename.index("_")+1:filename.index(".")])
+			covg_dictionary[property_number] =[]
+			file = open("results/cov_files/"+filename, 'r')
+			for line in file:
+				if "Stmts" in line:
+					covg_dictionary[property_number].append(line.split()[-1])
+				if "Branches" in line:
+					covg_dictionary[property_number].append(line.split()[-1])
+				if "States" in line:
+					covg_dictionary[property_number].append(line.split()[-1])
+				if "Transitions" in line:
+					covg_dictionary[property_number].append(line.split()[-1])
+				if "Toggle" in line:
+					covg_dictionary[property_number].append(line.split()[-1])
+				if "Total" in line:
+					covg_dictionary[property_number].append(line.split()[-1])
+
+	max_total = 0
+	best_property = None
+	print "#\tstmt\tbranch\tstate\ttrans\ttggl\ttotal"
+	print "-------------------------------------------------------"
+	for item in range(0, len(covg_dictionary.keys())):
+		
+		print item, "\t",
+		for percentage in covg_dictionary[item]:
+			print percentage,"\t",
+		print 
+		if max_total < float(covg_dictionary[item][-1][:-1]):
+			max_total = float(covg_dictionary[item][-1][:-1])
+			best_property = item
+	print "-------------------------------------------------------"
+	print "max total coverage for single property:", max_total
+	print "best property:", best_property

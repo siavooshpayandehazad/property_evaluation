@@ -11,3 +11,4 @@ report_prop_dictonary(prop_dictionary)		# prints contecnt of the the property di
 generate_tb(sys_arguments["testbench_file"], prop_dictionary)	# generates the TB lists
 generate_do_file(sys_arguments["testbench_file"], prop_dictionary)	# generates the do files
 run_simulator(len(prop_dictionary), sys_arguments["testbench_file"])
+parse_cov_reports()
