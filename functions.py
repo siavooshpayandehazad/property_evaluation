@@ -94,24 +94,26 @@ def generate_do_file(tb_file_name, prop_dictionary):
 	"""
 	initial_file_name = tb_file_name.split(".")[0]
 	for prop in prop_dictionary:
-		sim_length = len(prop_dictionary[prop])+10
+		#sim_length = len(prop_dictionary[prop])+10
+		sim_length = 1000
 		tb_name = "results/TB/"+initial_file_name+"_"+str(prop)+".vhd"
 		do_file = open("results/do_files/sim_"+str(prop)+".do", "w")
 
-		do_file.write("---------------------------------------------\n")
-		do_file.write("-- THIS FILE IS GENERATED AUTOMATICALLY    --\n")
-		do_file.write("--           DO NOT EDIT                   --\n")
-		do_file.write("---------------------------------------------\n")
+		do_file.write("#---------------------------------------------\n")
+		do_file.write("#-- THIS FILE IS GENERATED AUTOMATICALLY    --\n")
+		do_file.write("#--           DO NOT EDIT                   --\n")
+		do_file.write("#---------------------------------------------\n")
 		do_file.write("\n")
 		do_file.write("vlib work\n")
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
 		# TODO: update the design accordingly
-		do_file.write("# vlog -work work -cover bcesfx  \"arbiter.v\"\n")
+		do_file.write("vlog -work work  \"DUTs/state_defines.v\"\n")
+		do_file.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx  \"DUTs/arbiter.v\"\n")
 		do_file.write("vcom \""+tb_name+"\"\n")
 		do_file.write("\n")
 		do_file.write("# Start the simulation\n")
-		do_file.write("vsim work.property_tb\n")
+		do_file.write("vsim -coverage -voptargs=\"+cover=bcestfx\" work.property_tb\n")
 		do_file.write("\n")
 		do_file.write("# Run the simulation\n")
 		do_file.write("run "+str(sim_length)+" ns\n")
@@ -151,24 +153,24 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("entity property_tb is\n")
 		tb_file.write("end property_tb;\n\n")
 
-		tb_file.write("architecture behavior of multiplier_and_tester_tb is\n\n")
+		tb_file.write("architecture behavior of property_tb is\n\n")
 
 		tb_file.write("-- component decleration\n")
 		tb_file.write("component arbiter is\n")
-		tb_file.write("prot (\n")
-		tb_file.write("    clk, rst: in std_logic,\n")
-		tb_file.write("    Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id: in std_logic_vector(2 downto 0),\n")
-		tb_file.write("    Llength, Nlength, Elength, Wlength, Slength: in std_logic_vector(11 downto 0),\n")
-		tb_file.write("    Lreq, Nreq, Ereq, Wreq, Sreq: in std_logic,\n")
+		tb_file.write("port (\n")
+		tb_file.write("    clk, rst: in std_logic;\n")
+		tb_file.write("    Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id: in std_logic_vector(2 downto 0);\n")
+		tb_file.write("    Llength, Nlength, Elength, Wlength, Slength: in std_logic_vector(11 downto 0);\n")
+		tb_file.write("    Lreq, Nreq, Ereq, Wreq, Sreq: in std_logic;\n")
 		tb_file.write("    nextstate: out std_logic_vector(5 downto 0)\n")
 		tb_file.write(");\n")
 		tb_file.write("end component;\n\n")
 
-		tb_file.write("signal nextstate: std_logic_vector(5 downto 0);\n")
-		tb_file.write("signal Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id: std_logic_vector(2 downto 0);\n")
-		tb_file.write("signal Llength, Nlength, Elength, Wlength, Slength: std_logic_vector(11 downto 0);\n")
-		tb_file.write("signal Lreq, Nreq, Ereq, Wreq, Sreq: std_logic;\n")
-		tb_file.write("signal clk, reset : std_logic := '0';\n")
+		tb_file.write("signal nextstate: std_logic_vector(5 downto 0) := (others => '0');\n")
+		tb_file.write("signal Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id: std_logic_vector(2 downto 0):= (others => '0');\n")
+		tb_file.write("signal Llength, Nlength, Elength, Wlength, Slength: std_logic_vector(11 downto 0):= (others => '0');\n")
+		tb_file.write("signal Lreq, Nreq, Ereq, Wreq, Sreq: std_logic := '0';\n")
+		tb_file.write("signal clk, rst : std_logic := '1';\n")
 		tb_file.write("constant clk_period : time := 1 ns;\n")
 		tb_file.write("\nbegin\n\n")
 
@@ -188,6 +190,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 
 		tb_file.write("\n\n-- applying the stimuli\n")
 		tb_file.write("    process begin\n")
+		tb_file.write("        wait for 1 ns;\n")
 		next_clk = False
 		for item in prop_dictionary[prop]:
 			wait = ""
@@ -197,10 +200,20 @@ def generate_tb(tb_file_name, prop_dictionary):
 					tb_file.write("        wait for 1 ns;\n")
 					next_clk = True
 			if "!" in item:
-				index = item.index("!")
-				tb_file.write("        "+item.split()[0][index+1:]+" <= '0';\n")
+				index = item.split()[0].index("!")
+				signal_name = item.split()[0][index+1:]
+				digit =  [int(s) for s in signal_name if s.isdigit()]
+				if len(digit)>0:
+					signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
+				tb_file.write("        "+signal_name+" <= '0';\n")
 			else:
-				tb_file.write("        "+item.split()[0]+" <= '1';\n")
+				if item != "1 ":
+					signal_name = item.split()[0]
+					digit =  [int(s) for s in signal_name if s.isdigit()]
+					if len(digit)>0:
+						signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
+					tb_file.write("        "+signal_name+" <= '1';\n")
+		tb_file.write("    wait;\n\n")
 		tb_file.write("    end process;\n\n")
 		tb_file.write("\nEND;\n")
 
@@ -262,4 +275,11 @@ def generate_folders():
 		file_list = [do_file for do_file in os.listdir("results/do_files") if do_file.endswith(".do")]
 		for do_file in file_list:
 			os.remove('results/do_files/'+do_file)
+
+	if not os.path.exists("results/cov_files"):
+		os.makedirs("results/cov_files")
+	else:
+		file_list = [cov_file for cov_file in os.listdir("results/cov_files")]
+		for cov_file in file_list:
+			os.remove('results/cov_files/'+cov_file)
 	return None
