@@ -235,18 +235,30 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 					if len(digit)>0:
 						signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
 					tb_file.write("        "+signal_name+" <= '1';\n")
-		tb_file.write("    wait;\n\n")
+		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n\n")
 
+		tb_file.write("\n\n-- checking the symptom\n")
+		tb_file.write("    process begin\n")
 		for symptom in prop_symp_dict[prop]: 
 			wait  = 0
-			if "XX" in symptom:
+			value = 1
+			symptom = symptom.replace("[", "(")
+			symptom = symptom.replace("]", ")")
+			if "XX" in symptom and wait < 2:
 				wait =  2
+				tb_file.write("        wait for 2 ns;\n")
 				symptom = symptom[symptom.index("X")+2:]
-			elif "X" in symptom:
+			elif "X" in symptom and wait < 1:
 				wait =  1
+				tb_file.write("        wait for 1 ns;\n")
 				symptom = symptom[symptom.index("X")+1:]
-			tb_file.write("-- stuff for making assertion: "+str(symptom)+" after: "+str(wait)+" ns")
+			if "!" in symptom:
+				symptom = symptom[symptom.index("!")+1:]
+				value = 0
+			tb_file.write("        assert "+str(symptom)+" = "+ str(value)+ " report \"ASSIRTION FAILED\" severity failure;\n")
+		tb_file.write("        wait;\n")
+		tb_file.write("    end process;\n\n")
 
 		tb_file.write("\nEND;\n")
 
