@@ -1,3 +1,6 @@
+# Copyright (C) 2017 Siavoosh Payandeh Azad and Tsotne Putkaradze
+# License: GNU GENERAL PUBLIC LICENSE Version 3
+
 import os
 
 

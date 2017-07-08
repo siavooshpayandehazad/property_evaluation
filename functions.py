@@ -1,3 +1,6 @@
+# Copyright (C) 2017 Siavoosh Payandeh Azad
+# License: GNU GENERAL PUBLIC LICENSE Version 3
+
 import sys
 import copy
 import os
@@ -109,7 +112,6 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("vlib work\n")
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
-		# TODO: update the design accordingly
 		do_file.write("vlog -work work  \"DUTs/state_defines.v\"\n")
 		do_file.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx  \"DUTs/arbiter.v\"\n")
 		do_file.write("vcom \""+tb_name+"\"\n")
@@ -135,6 +137,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 	generates a test bench for each property and stores it in results/TB/
 	returns None
 	"""
+	# TODO: we have to decide if it is fair that we have a wait statement for 1 clk cycle at the beginning of each testbench
 	initial_file_name = tb_file_name.split(".")[0]
 
 	for prop in prop_dictionary:
@@ -186,7 +189,6 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("        wait for clk_period/2;\n")
 		tb_file.write("    end process;\n\n")
 
-		# TODO: Instatiate the components
 		tb_file.write("\n\n-- instantiate the compoent\n")
 		tb_file.write("DUT: arbiter\n")
 		tb_file.write("     port map(clk, rst, Lflit_id, Nflit_id, Eflit_id, Wflit_id, Sflit_id, Llength, Nlength, Elength, Wlength, Slength, Lreq, Nreq, Ereq, Wreq, Sreq, nextstate);")
@@ -255,8 +257,10 @@ def generate_folders():
 	
 	|_results
 		|
-		|---TB 				for storing all generated testbenches
-		|---do_files 		for storing all generated testbenches
+		|___TB 					for storing all generated testbenches
+		|___do_files 			for storing all generated testbenches
+		|___cov_files 			for storing all generated coverage reports
+				|___detailed 	for storing all generated detailed coverage reports
 
 	cleans the folders if some files are remaining from previous runs. however, it only
 	removes the files with .vhd extention from TB folder and with .do extention from 
@@ -296,6 +300,13 @@ def generate_folders():
 
 
 def parse_cov_reports():
+	"""
+	parses the short coverage reports! 
+	will generate a table where each row i shows different coverage parameters for property i
+	also, will provide some statistic in form of a histogram showing number of properties vs. 
+	their statement coverage.
+	returns None
+	"""
 	covg_dictionary = {}
 	for filename in os.listdir("results/cov_files"):
 		if filename.endswith(".txt"):
@@ -341,7 +352,7 @@ def parse_cov_reports():
 	h,b = np.histogram(sorted(total_coverage_list+[max_total+1]), bins)
 
 	for i in range (0, bins-1):
-		print string.rjust(`b[i]`, 7)[:int(log10(np.amax(b)))+5], '| ', '#'*int(70*h[i-1]/np.amax(h))
+		print string.rjust(`b[i]`, 7)[:int(log10(np.amax(b)))+5], '| ', '*'*int(70*h[i-1]/np.amax(h))
 	print string.rjust(`b[bins]`, 7)[:int(log10(np.amax(b)))+5] 
 	print "-------------------------------------------------------"
 	return None
@@ -350,8 +361,14 @@ def parse_cov_reports():
 def parse_det_cov_report():
 	"""
 	parses the detailed coverage and prints the list of properties that hit each statement in the design
+	returns stmt_covg_dictionary which is a dictionary with line numbers as keys and list of properties covering
+	that line as value:
+		stmt_covg_dictionary = { line_number_0: [list of properties covering line 0],
+					  		   line_number_1: [list of properties covering line 1],
+					  		   ...
+		}
 	"""
-	covg_dictionary = {}
+	stmt_covg_dictionary = {}
 	for filename in os.listdir("results/cov_files/detailed"):
 		if filename.endswith(".txt"):
 			file = open("results/cov_files/detailed/"+filename, 'r')
@@ -368,13 +385,44 @@ def parse_det_cov_report():
 							parameters.append(item)
 					if len(parameters)> 1:
 						if parameters[2] != '***0***':
-							if int(parameters[0]) not in covg_dictionary.keys():
-								covg_dictionary[int(parameters[0])]= [tb_number]
+							if int(parameters[0]) not in stmt_covg_dictionary.keys():
+								stmt_covg_dictionary[int(parameters[0])]= [tb_number]
 							else:
-								if tb_number not in covg_dictionary[int(parameters[0])]:
-									covg_dictionary[int(parameters[0])].append(tb_number)
+								if tb_number not in stmt_covg_dictionary[int(parameters[0])]:
+									stmt_covg_dictionary[int(parameters[0])].append(tb_number)
 				if "Statement Coverage for" in line:
 					enable = True
-	for index in sorted(covg_dictionary.keys()):
-		print index, "\t", sorted(covg_dictionary[index])
-	return None
+	for index in sorted(stmt_covg_dictionary.keys()):
+		print index, "\t", sorted(stmt_covg_dictionary[index])
+	return stmt_covg_dictionary
+
+
+def remove_covered_statements(stmt_covg_dictionary, property_id):
+	"""
+	removes statemets from property dictionary "stmt_covg_dictionary" which are covered by property "property_id"
+	returns refined stmt_covg_dictionary
+	"""
+	deletion_list = []
+	for item in stmt_covg_dictionary.keys():
+		if property_id in stmt_covg_dictionary[item]:
+			deletion_list.append(item)
+	for del_item in deletion_list:
+		del stmt_covg_dictionary[del_item]
+	return stmt_covg_dictionary
+
+
+def find_most_covering_prop (stmt_covg_dictionary):
+	"""
+	goes thorugh the property dictionary with the following strucutre:
+		stmt_covg_dictionary = { line_number_0: [list of properties covering line 0],
+								 line_number_1: [list of properties covering line 1],
+					  			 ...
+		}
+	and returns the property which covers most number of lines.
+
+	"""
+	big_list = []
+	for item in stmt_covg_dictionary.keys():
+		big_list += stmt_covg_dictionary[item]
+	most_covering_prop =  max(set(big_list), key=big_list.count)
+	return most_covering_prop

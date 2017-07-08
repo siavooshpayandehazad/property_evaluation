@@ -1,3 +1,6 @@
+# Copyright (C) 2017 Siavoosh Payandeh Azad
+# License: GNU GENERAL PUBLIC LICENSE Version 3
+
 import copy
 import sys
 from functions import *
@@ -12,4 +15,13 @@ generate_tb(sys_arguments["testbench_file"], prop_dictionary)	# generates the TB
 generate_do_file(sys_arguments["testbench_file"], prop_dictionary)	# generates the do files
 run_simulator(len(prop_dictionary), sys_arguments["testbench_file"])
 parse_cov_reports()
-parse_det_cov_report()
+covg_dictionary = parse_det_cov_report()
+
+# TODO: this is not tested in the real environment! run again and double check.
+taken_properties = []
+while (len(covg_dictionary.keys())>0):
+	best_prop = find_most_covering_prop (covg_dictionary)
+	taken_properties.append(best_prop)
+	remove_covered_statements(covg_dictionary, best_prop)
+
+print "Set of statements that cover every statement coverd by initial set:", taken_properties
