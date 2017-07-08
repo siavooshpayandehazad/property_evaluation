@@ -256,7 +256,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 			if "!" in symptom:
 				symptom = symptom[symptom.index("!")+1:]
 				value = 0
-			tb_file.write("        assert "+str(symptom)+" = "+ str(value)+ " report \"ASSIRTION FAILED\" severity failure;\n")
+			tb_file.write("        assert ("+str(symptom)+" = "+ str(value)+ ") report \"ASSIRTION ["+wait*"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity failure;\n")
 		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n\n")
 
