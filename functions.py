@@ -44,52 +44,70 @@ def generate_prop_dictionary(prop_file_name):
 	print "starting parsing the property file!"
 	prop_file = open(prop_file_name, 'r')
 	counter = 0
-	prop_dict = {}
+	prop_cond_dict = {}
+	prop_symp_dict = {}
 	for line in prop_file:
 		if "G" in line:
-			#prop =  line.split("->")[0].split("(")[-1].split(")")[0].split("&")
-			prop = []
-			new_line = line.split("->")[0][2:]
-			if "X" not in new_line:
+			condition = []
+			condition_section = line.split("->")[0][2:]
+			if "X" not in condition_section:
+				# if there is no X in the line, the we dont care about the paranthesis, we just 
+				# remove them... and then split by "&"
 				properties = ""
-				for char in new_line:
+				for char in condition_section:
 					if char != "(" and char != ")":
 						properties += char
-				# print "no X:  ",properties.split("&")
-				prop += properties.split("&")
-				# print "--------------------"
-			elif "(" not in new_line and ")" not in new_line:
-				# print "X, no par:  ", new_line.split("&")
-				prop += new_line.split("&")
-				# print "--------------------"
+				condition += properties.split("&")
+			elif "(" not in condition_section and ")" not in condition_section:
+				# there is X in the line but there is no paranthesis
+				# so we dont care!
+				condition += condition_section.split("&")
 			else:
-				#print "==> ", new_line
+				# there is X and also paranthesis in the line!
+				# TODO: the problem is we only pars the first X... so there... 
+				#--------------
+				# happens in the first clock cycle!
 				now_properties = ""
-				for char in new_line.split("X")[0][:-2]:
+				for char in condition_section.split("X")[0][:-2]:
 					if char != "(" and char != ")":
 						now_properties += char
 				for item in now_properties.split("&"):
 					if item[0] == " ":
 						item = item[1:]
-					prop.append(item)
-				#print "now:", now_properties.split("&")
-
+					condition.append(item)
+				# happens in the second clock cycle!
 				later_properties = ""
-				for char in new_line.split("X")[1]:
+				for char in condition_section.split("X")[1]:
 					if char != "(" and char != ")":
 						later_properties += char
 				for item in later_properties.split("&"):
 					if item[0] == " ":
 						item = item[1:]
-					prop.append("X"+item)
-				# print new_line
-				# print prop
-				# print "--------------------"
-			prop_dict[counter] = copy.deepcopy(prop)
+					condition.append("X"+item)
+			prop_cond_dict[counter] = copy.deepcopy(condition)
+
+			#TODO: parse the symptom!
+			symptom = []
+			symptom_section = line.split("->")[1]
+			later_symptom = ""
+			for char in symptom_section[symptom_section.index("("):]:
+				if char != "(" and char != ")" and char != "\n" and char != "\r":
+					later_symptom += char
+			for item in later_symptom.split("&"):
+				if item[0] == " ":
+					item = item[1:]
+				if "XX" in symptom_section:
+					symptom.append("XX"+item)
+				elif "X" in symptom_section: 
+					symptom.append("X"+item)
+				else:
+					symptom.append(item)
+			prop_symp_dict[counter] = copy.deepcopy(symptom)
+
 			counter += 1
 	print "finished parsing property file... closing file!"
 	prop_file.close()
-	return prop_dict
+	return prop_cond_dict, prop_symp_dict
 
 
 def generate_do_file(tb_file_name, prop_dictionary):
@@ -132,7 +150,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 	return None
 
 
-def generate_tb(tb_file_name, prop_dictionary):
+def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	"""
 	generates a test bench for each property and stores it in results/TB/
 	returns None
@@ -140,7 +158,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 	# TODO: we have to decide if it is fair that we have a wait statement for 1 clk cycle at the beginning of each testbench
 	initial_file_name = tb_file_name.split(".")[0]
 
-	for prop in prop_dictionary:
+	for prop in prop_cond_dict:
 		tb_name = "results/TB/"+initial_file_name+"_"+str(prop)+".vhd"
 		print "-----------------------------------------------------"
 		print "starting generation of Testbench file:", tb_name
@@ -197,8 +215,7 @@ def generate_tb(tb_file_name, prop_dictionary):
 		tb_file.write("    process begin\n")
 		tb_file.write("        wait for 1 ns;\n")
 		next_clk = False
-		for item in prop_dictionary[prop]:
-			wait = ""
+		for item in prop_cond_dict[prop]:
 			if 'X' in item:
 				item = item [item.index("X")+1:]
 				if next_clk == False :
@@ -220,6 +237,17 @@ def generate_tb(tb_file_name, prop_dictionary):
 					tb_file.write("        "+signal_name+" <= '1';\n")
 		tb_file.write("    wait;\n\n")
 		tb_file.write("    end process;\n\n")
+
+		for symptom in prop_symp_dict[prop]: 
+			wait  = 0
+			if "XX" in symptom:
+				wait =  2
+				symptom = symptom[symptom.index("X")+2:]
+			elif "X" in symptom:
+				wait =  1
+				symptom = symptom[symptom.index("X")+1:]
+			tb_file.write("-- stuff for making assertion: "+str(symptom)+" after: "+str(wait)+" ns")
+
 		tb_file.write("\nEND;\n")
 
 		print "finished generation of Testbench... closing the file!"
