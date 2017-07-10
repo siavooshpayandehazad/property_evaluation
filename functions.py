@@ -240,6 +240,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 
 		tb_file.write("\n\n-- checking the symptom\n")
 		tb_file.write("    process begin\n")
+		tb_file.write("        wait for 1 ns;\n")
 		for symptom in prop_symp_dict[prop]: 
 			wait  = 0
 			value = 1
@@ -256,7 +257,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 			if "!" in symptom:
 				symptom = symptom[symptom.index("!")+1:]
 				value = 0
-			tb_file.write("        assert ("+str(symptom)+" = "+ str(value)+ ") report \"ASSIRTION ["+wait*"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity failure;\n")
+			tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+wait*"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity failure;\n")
 		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n\n")
 
