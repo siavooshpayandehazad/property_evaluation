@@ -17,7 +17,6 @@ run_simulator(len(prop_cond_dict), sys_arguments["testbench_file"])
 parse_cov_reports()
 covg_dictionary = parse_det_cov_report()
 
-# TODO: this is not tested in the real environment! run again and double check.
 taken_properties = []
 while (len(covg_dictionary.keys())>0):
 	best_prop = find_most_covering_prop (covg_dictionary)
