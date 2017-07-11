@@ -3,6 +3,7 @@
 
 import os
 
+#TODO: get the simulator return value and check if it actually finished successfully or not!
 
 def run_simulator(number_of_properties, tb_file_name):
 	initial_file_name = tb_file_name.split(".")[0]

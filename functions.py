@@ -13,6 +13,7 @@ def report_prop_dictonary(prop_dict):
 	prints the property dictionary to the console
 	returns None
 	"""
+	# TODO: check if prop_dict is a dictionary!
 	print "-----------------------------------------------------"
 	print "parsed properties:"
 	for item in prop_dict.keys():
@@ -32,6 +33,11 @@ def print_help():
 	print "program arguments:"
 	print "\t-i [filename]:	recieves property file in rtf format. Important note, the properties should not use any internal signals!" 
 	print "\t-o [filename]:	generated vhdl testbench" 
+	#TODO:
+	print "\nTODO:"
+	print "     * We need to improve the property parser (for both condition and symptom)... its very primitive now!"
+	print "     * The parser doesnt parse different inputs... somehow we need to fix that!"
+	print "     * the coverage parser should be extended to also provide the branch and other coverage results!"
 	return None
 
 
@@ -40,6 +46,8 @@ def generate_prop_dictionary(prop_file_name):
 	Parses the property file fed by the user and returns a dictionary with 
 	property number as the key and a list of conditions as value.
 	"""
+	#TODO: check if prop_file_name is string!
+
 	print "-----------------------------------------------------"
 	print "starting parsing the property file!"
 	prop_file = open(prop_file_name, 'r')
@@ -115,6 +123,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 	generates a do file for modelsim for each property and stores it in results/do_files/
 	returns None
 	"""
+	# TODO: check if tb_file_name is string and prop_dictionary is a dictionary
 	initial_file_name = tb_file_name.split(".")[0]
 	for prop in prop_dictionary:
 		#sim_length = len(prop_dictionary[prop])+10
@@ -146,7 +155,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("vcover report -detail -output coverage_"+str(prop)+"_det.txt coverage_"+str(prop)+".ucdb\n\n")
 		do_file.write("# Exit Modelsim after simulation\n")
 		do_file.write("exit\n")
-
+	do_file.close()
 	return None
 
 
@@ -155,6 +164,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	generates a test bench for each property and stores it in results/TB/
 	returns None
 	"""
+	# TODO: check if tb_file_name is string and prop_cond_dict and prop_symp_dict are dictionaries
 	# TODO: we have to decide if it is fair that we have a wait statement for 1 clk cycle at the beginning of each testbench
 	initial_file_name = tb_file_name.split(".")[0]
 
@@ -167,7 +177,8 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		tb_file.write("-- THIS FILE IS GENERATED AUTOMATICALLY    --\n")
 		tb_file.write("--           DO NOT EDIT                   --\n")
 		tb_file.write("---------------------------------------------\n")
-		tb_file.write("--Copyright (C) 2017  Siavoosh Payandeh Azad \n\n")
+		tb_file.write("--Copyright (C) 2017  Siavoosh Payandeh Azad \n")
+		tb_file.write("--License: GNU GENERAL PUBLIC LICENSE Version 3 \n\n")
 
 		tb_file.write("library ieee;\n")
 		tb_file.write("use ieee.std_logic_1164.all;\n")
@@ -301,7 +312,8 @@ def generate_folders():
 		|___TB 					for storing all generated testbenches
 		|___do_files 			for storing all generated testbenches
 		|___cov_files 			for storing all generated coverage reports
-				|___detailed 	for storing all generated detailed coverage reports
+		|		|___detailed 	for storing all generated detailed coverage reports
+		|___reports 			stors tool generated reports!
 
 	cleans the folders if some files are remaining from previous runs. however, it only
 	removes the files with .vhd extention from TB folder and with .do extention from 
@@ -337,6 +349,14 @@ def generate_folders():
 		file_list = [cov_file for cov_file in os.listdir("results/cov_files/detailed")if cov_file.endswith(".txt")]
 		for cov_file in file_list:
 			os.remove('results/cov_files/detailed/'+cov_file)
+
+	if not os.path.exists("results/reports"):
+		os.makedirs("results/reports")
+	else:
+		file_list = [report_file for report_file in os.listdir("results/reports")if report_file.endswith(".txt")]
+		for report_file in file_list:
+			os.remove("results/reports/"+report_file)
+
 	return None
 
 
@@ -371,21 +391,23 @@ def parse_cov_reports():
 	max_total = 0
 	best_property = None
 	total_coverage_list = []
-	print "#\tstmt\tbranch\tstate\ttrans\ttggl\ttotal"
-	print "-------------------------------------------------------"
+	file = open("results/reports/general_stmt_coverage_report.txt","w")
+	file.write("#\tstmt\tbranch\tstate\ttrans\ttggl\ttotal\n")
+	file.write("-------------------------------------------------------\n")
 	for item in range(0, len(covg_dictionary.keys())):
 		
-		print item, "\t",
+		file.write( item, "\t",)
 		for percentage in covg_dictionary[item]:
-			print percentage,"\t",
-		print 
+			file.write( percentage,"\t",)
+		file.write("\n") 
 		total_coverage_list.append(float(covg_dictionary[item][-1][:-1]))
 		if max_total < float(covg_dictionary[item][-1][:-1]):
 			max_total = float(covg_dictionary[item][-1][:-1])
 			best_property = item
-	print "-------------------------------------------------------"
-	print "max total coverage for single property:", max_total
-	print "best property:", best_property
+	file.write("-------------------------------------------------------\n")
+	file.write("max total coverage for single property:" +str(max_total)+"\n")
+	file.write("best property:" +str(best_property)+"\n")
+	file.close()
 
 	print "-------------------------------------------------------"
 	print "histogram of total coverage of properties"
@@ -433,8 +455,15 @@ def parse_det_cov_report():
 									stmt_covg_dictionary[int(parameters[0])].append(tb_number)
 				if "Statement Coverage for" in line:
 					enable = True
+			file.close()
+	file = open("results/reports/detailed_stmt_coverage_report.txt","w")
 	for index in sorted(stmt_covg_dictionary.keys()):
 		print index, "\t", sorted(stmt_covg_dictionary[index])
+		file.write(str(index)+"\t")
+		for itme in stmt_covg_dictionary[index]:
+			file.write(str(item)," ,")
+		file.write("\n")
+	file.close()
 	return stmt_covg_dictionary
 
 
@@ -443,6 +472,7 @@ def remove_covered_statements(stmt_covg_dictionary, property_id):
 	removes statemets from property dictionary "stmt_covg_dictionary" which are covered by property "property_id"
 	returns refined stmt_covg_dictionary
 	"""
+	# TODO: check if stmt_covg_dictionary is dictionary, check property_id
 	deletion_list = []
 	for item in stmt_covg_dictionary.keys():
 		if property_id in stmt_covg_dictionary[item]:
@@ -467,3 +497,21 @@ def find_most_covering_prop (stmt_covg_dictionary):
 		big_list += stmt_covg_dictionary[item]
 	most_covering_prop =  max(set(big_list), key=big_list.count)
 	return most_covering_prop
+
+
+def find_minimal_set_of_properties_stmt(stmt_covg_dictionary):
+	"""
+	returns a list of properties that cover all the statements in the cov_dictionary. 
+	"""
+	print "Starting the process of finding a sub-set of properties that cover everything covered by initial set!"
+	taken_properties = []
+	while (len(stmt_covg_dictionary.keys())>0):
+		best_prop = find_most_covering_prop(stmt_covg_dictionary)
+		taken_properties.append(best_prop)
+		remove_covered_statements(stmt_covg_dictionary, best_prop)
+
+	print "number of properties in the sub-set:", len(taken_properties) 
+	print "final set:", taken_properties
+	print "----------------------------------------"
+	return taken_properties
+
