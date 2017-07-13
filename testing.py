@@ -25,7 +25,7 @@ def test_prop_symp_dict(prop_symp_dict):
 	return True
 
 
-def perform_tests(prop_cond_dict,prop_symp_dict):
+def test_prop_dicts(prop_cond_dict,prop_symp_dict):
 	print "----------------------------------------------"
 	print "starting testing..."
 	if not test_prop_cond_dict(prop_cond_dict):
