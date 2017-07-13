@@ -8,6 +8,7 @@ import numpy as np
 import string
 from math import log10
 from package import *
+import os.path
 
 def report_prop_dictonary(prop_dict):
 	"""
@@ -304,6 +305,10 @@ def parse_arguments(sys_args, package_arguments):
 		package_arguments["input_property_file"] = sys.argv[sys.argv.index("-i")+1]
 		if ".rtf" not in package_arguments["input_property_file"] :
 			raise ValueError("property file should be in rtf format")
+		else:
+			if not os.path.isfile(package_arguments["input_property_file"]):
+				print "input propoerty file path is not valid"
+				sys.exit()
 	else:
 		raise ValueError ("a valid property file is needed!")
 
