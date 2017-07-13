@@ -7,13 +7,15 @@ import os
 import numpy as np
 import string
 from math import log10
+from package import *
 
 def report_prop_dictonary(prop_dict):
 	"""
 	prints the property dictionary to the console
 	returns None
 	"""
-	# TODO: check if prop_dict is a dictionary!
+	if not isinstance(prop_dict, dict):
+		raise ValueError("prop_dict is not a dictionary!")
 	print "-----------------------------------------------------"
 	print "parsed properties:"
 	for item in prop_dict.keys():
@@ -46,8 +48,8 @@ def generate_prop_dictionary(prop_file_name):
 	Parses the property file fed by the user and returns a dictionary with 
 	property number as the key and a list of conditions as value.
 	"""
-	#TODO: check if prop_file_name is string!
-
+	if not isinstance(prop_file_name, str):
+		raise ValueError("prop_file_name is not a string!")
 	print "-----------------------------------------------------"
 	print "starting parsing the property file!"
 	prop_file = open(prop_file_name, 'r')
@@ -123,7 +125,10 @@ def generate_do_file(tb_file_name, prop_dictionary):
 	generates a do file for modelsim for each property and stores it in results/do_files/
 	returns None
 	"""
-	# TODO: check if tb_file_name is string and prop_dictionary is a dictionary
+	if not isinstance(tb_file_name, str):
+		raise ValueError("tb_file_name is not a string!")
+	if not isinstance(prop_dictionary, dict):
+		raise ValueError("prop_dictionary is not a dictionary!")
 	initial_file_name = tb_file_name.split(".")[0]
 	for prop in prop_dictionary:
 		#sim_length = len(prop_dictionary[prop])+10
@@ -139,8 +144,9 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("vlib work\n")
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
-		do_file.write("vlog -work work  \"DUTs/state_defines.v\"\n")
-		do_file.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx  \"DUTs/arbiter.v\"\n")
+		do_file.write("vlog -work work  \""+DUT_path+"state_defines.v\"\n")
+		do_file.write("vlog -work work  \""+DUT_path+"parameters.v\"\n")
+		do_file.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx  \""+DUT_path+"arbiter.v\"\n")
 		do_file.write("vcom \""+tb_name+"\"\n")
 		do_file.write("\n")
 		do_file.write("# Start the simulation\n")
@@ -164,7 +170,12 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	generates a test bench for each property and stores it in results/TB/
 	returns None
 	"""
-	# TODO: check if tb_file_name is string and prop_cond_dict and prop_symp_dict are dictionaries
+	if not isinstance(tb_file_name, str):
+		raise ValueError("tb_file_name is not a string!")
+	if not isinstance(prop_cond_dict, dict):
+		raise ValueError("prop_cond_dict is not a dictionary!")
+	if not isinstance(prop_symp_dict, dict):
+		raise ValueError("prop_symp_dict is not a dictionary!")
 	# TODO: we have to decide if it is fair that we have a wait statement for 1 clk cycle at the beginning of each testbench
 	initial_file_name = tb_file_name.split(".")[0]
 

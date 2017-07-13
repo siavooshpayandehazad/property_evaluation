@@ -2,6 +2,7 @@
 # License: GNU GENERAL PUBLIC LICENSE Version 3
 
 import os
+from package import *
 
 #TODO: get the simulator return value and check if it actually finished successfully or not!
 

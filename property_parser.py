@@ -8,6 +8,7 @@ from package import sys_arguments
 from run_sim import run_simulator
 
 # TODO: check if everything is ok with the user's system! if there is a library dependency missing etc...
+# TOOD: we need unit testing!
 
 sys_arguments = copy.deepcopy(parse_arguments(sys.argv, sys_arguments))					# parse the user inputs
 generate_folders()		# generates folder structure
