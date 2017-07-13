@@ -336,42 +336,43 @@ def generate_folders():
 	do_files folder.
 	returns None
 	"""
-	if not os.path.exists("results"):
-		os.makedirs("results")
+	if not os.path.exists(results_path):
+		os.makedirs(results_path)
 
-	if not os.path.exists("results/TB"):
-		os.makedirs("results/TB")
+	if not os.path.exists(tb_path):
+		os.makedirs(tb_path)
 	else:
-		file_list = [vhd_file for vhd_file in os.listdir("results/TB") if vhd_file.endswith(".vhd")]
+		file_list = [vhd_file for vhd_file in os.listdir(tb_path) if vhd_file.endswith(".vhd")]
 		for vhd_file in file_list:
-			os.remove('results/TB/'+vhd_file)
-	if not os.path.exists("results/do_files"):
-		os.makedirs("results/do_files")
+			os.remove(tb_path+"/"+vhd_file)
+
+	if not os.path.exists(do_path):
+		os.makedirs(do_path)
 	else:
-		file_list = [do_file for do_file in os.listdir("results/do_files") if do_file.endswith(".do")]
+		file_list = [do_file for do_file in os.listdir(do_path) if do_file.endswith(".do")]
 		for do_file in file_list:
-			os.remove('results/do_files/'+do_file)
+			os.remove(do_path+"/"+do_file)
 
-	if not os.path.exists("results/cov_files"):
-		os.makedirs("results/cov_files")
+	if not os.path.exists(cov_path):
+		os.makedirs(cov_path)
 	else:
-		file_list = [cov_file for cov_file in os.listdir("results/cov_files")if cov_file.endswith(".txt") or cov_file.endswith(".ucdb")]
+		file_list = [cov_file for cov_file in os.listdir(cov_path)if cov_file.endswith(".txt") or cov_file.endswith(".ucdb")]
 		for cov_file in file_list:
-			os.remove('results/cov_files/'+cov_file)
+			os.remove(cov_path+'/'+cov_file)
 
-	if not os.path.exists("results/cov_files/detailed"):
-		os.makedirs("results/cov_files/detailed")
+	if not os.path.exists(cov_detailed_path):
+		os.makedirs(cov_detailed_path)
 	else:
-		file_list = [cov_file for cov_file in os.listdir("results/cov_files/detailed")if cov_file.endswith(".txt")]
+		file_list = [cov_file for cov_file in os.listdir(cov_detailed_path)if cov_file.endswith(".txt")]
 		for cov_file in file_list:
-			os.remove('results/cov_files/detailed/'+cov_file)
+			os.remove(cov_detailed_path+'/'+cov_file)
 
-	if not os.path.exists("results/reports"):
-		os.makedirs("results/reports")
+	if not os.path.exists(reports_path):
+		os.makedirs(reports_path)
 	else:
-		file_list = [report_file for report_file in os.listdir("results/reports")if report_file.endswith(".txt")]
+		file_list = [report_file for report_file in os.listdir(reports_path)if report_file.endswith(".txt")]
 		for report_file in file_list:
-			os.remove("results/reports/"+report_file)
+			os.remove(reports_path+"/"+report_file)
 
 	return None
 
