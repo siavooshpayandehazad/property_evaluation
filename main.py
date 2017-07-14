@@ -8,6 +8,7 @@ from package import sys_arguments
 from run_sim import run_simulator
 from testing import *
 from gen_files import *
+from coverage_parser import *
 
 # TODO: check if everything is ok with the user's system! if there is a library dependency missing etc...
 # TOOD: we need unit testing!
