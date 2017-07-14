@@ -13,11 +13,49 @@ def report_prop_dictonary(prop_dict):
 	print "-----------------------------------------------------"
 	print "parsed properties:"
 	for item in prop_dict.keys():
-		print item, "\t",
-		for p in prop_dict[item]:
-			print p, "\t",
-		print 
+		print item, "\t", prop_dict[item]
 	return None
+
+
+def remove_spaces(item_str):
+	final_str = ""
+	for char in item_str:
+		if char != " ":
+			final_str += char 
+	return final_str
+
+
+def parse_condition_symptom_in_line(parse_line):
+	X_counter = 0
+	condition = []
+	while parse_line.count("X")>0:
+		sub_line = ""
+		X_start = 0
+		counter = 0
+		for char in parse_line:
+			counter += 1
+			if X_start == 0 and char == "X":
+				X_start = 1
+			elif X_start == 1 and char !="X":
+				for item in sub_line.split("&"):
+					if item != " ":
+						condition.append(X_counter*"X"+remove_spaces(item))
+				parse_line = parse_line[counter-1:]
+				X_counter += 1
+				break
+			elif X_start == 1 and char =="X":
+				X_counter += 1
+			else:
+				if char != "(" and char != ")":
+					sub_line += char
+	sub_line = ""
+	for char in parse_line:
+		if char != "(" and char != ")":
+			sub_line += char
+	for item in sub_line.split("&"):
+		if item != " ":
+			condition.append(X_counter*"X"+remove_spaces(item))
+	return condition
 
 
 def generate_prop_dictionary(prop_file_name):
@@ -35,62 +73,17 @@ def generate_prop_dictionary(prop_file_name):
 	prop_symp_dict = {}
 	for line in prop_file:
 		if "G" in line:
-			condition = []
 			condition_section = line.split("->")[0][2:]
-			if "X" not in condition_section:
-				# if there is no X in the line, the we dont care about the paranthesis, we just 
-				# remove them... and then split by "&"
-				properties = ""
-				for char in condition_section:
-					if char != "(" and char != ")":
-						properties += char
-				condition += properties.split("&")
-			elif "(" not in condition_section and ")" not in condition_section:
-				# there is X in the line but there is no paranthesis
-				# so we dont care!
-				condition += condition_section.split("&")
-			else:
-				# there is X and also paranthesis in the line!
-				# TODO: the problem is we only pars the first X... so there... 
-				#--------------
-				# happens in the first clock cycle!
-				now_properties = ""
-				for char in condition_section.split("X")[0][:-2]:
-					if char != "(" and char != ")":
-						now_properties += char
-				for item in now_properties.split("&"):
-					if item[0] == " ":
-						item = item[1:]
-					condition.append(item)
-				# happens in the second clock cycle!
-				later_properties = ""
-				for char in condition_section.split("X")[1]:
-					if char != "(" and char != ")":
-						later_properties += char
-				for item in later_properties.split("&"):
-					if item[0] == " ":
-						item = item[1:]
-					condition.append("X"+item)
-			prop_cond_dict[counter] = copy.deepcopy(condition)
+			prop_cond_dict[counter] = copy.deepcopy(parse_condition_symptom_in_line(condition_section))
 
 			#TODO: parse the symptom!
-			symptom = []
 			symptom_section = line.split("->")[1]
 			later_symptom = ""
-			for char in symptom_section[symptom_section.index("("):]:
+			for char in symptom_section:
 				if char != "(" and char != ")" and char != "\n" and char != "\r":
 					later_symptom += char
-			for item in later_symptom.split("&"):
-				if item[0] == " ":
-					item = item[1:]
-				if "XX" in symptom_section:
-					symptom.append("XX"+item)
-				elif "X" in symptom_section: 
-					symptom.append("X"+item)
-				else:
-					symptom.append(item)
-			prop_symp_dict[counter] = copy.deepcopy(symptom)
-
+			
+			prop_symp_dict[counter] = copy.deepcopy(parse_condition_symptom_in_line(later_symptom))
 			counter += 1
 	print "finished parsing property file... closing file!"
 	prop_file.close()

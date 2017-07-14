@@ -85,15 +85,15 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 				if item.count('X') == clock_cycle:
 					item_counter += 1 
 					if "!" in item:
-						index = item.split()[0].index("!")
-						signal_name = item.split()[0][index+1:]
+						index = item.index("!")
+						signal_name = item[index+1:]
 						digit =  [int(s) for s in signal_name if s.isdigit()]
 						if len(digit)>0:
 							signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
 						tb_file.write("        "+signal_name+" <= '0';\n")
 					else:
 						if item != "1 ":
-							signal_name = item.split()[0]
+							signal_name = item[clock_cycle:]
 							digit =  [int(s) for s in signal_name if s.isdigit()]
 							if len(digit)>0:
 								signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
