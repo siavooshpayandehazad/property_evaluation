@@ -18,6 +18,12 @@ def report_prop_dictonary(prop_dict):
 
 
 def remove_spaces(item_str):
+	"""
+	gets a string item "item_str" and returns a final_str which is the same but
+	the spaces are removed!
+	"""
+	if not isinstance(item_str, str):
+		raise ValueError("Item is not string!")
 	final_str = ""
 	for char in item_str:
 		if char != " ":
@@ -26,27 +32,33 @@ def remove_spaces(item_str):
 
 
 def parse_condition_symptom_in_line(parse_line):
-	X_counter = 0
-	condition = []
+	"""
+	This function gets a property as a line to parse and returns a list "condition_symptom" which 
+	contains the condition or the symptom!
+	the problem is that if we have a signal with X in its name, parsing might get messed 
+	up!
+	"""
+	X_counter = 0	# this counts the number of Xs we see during parsing
+	condition_symptom = []	
 	while parse_line.count("X")>0:
 		sub_line = ""
 		X_start = 0
 		counter = 0
 		for char in parse_line:
 			counter += 1
-			if X_start == 0 and char == "X":
+			if X_start == 0 and char == "X":	# this is the first X we see!
 				X_start = 1
-			elif X_start == 1 and char !="X":
+			elif X_start == 1 and char !="X":	# this is the end of Xs
 				for item in sub_line.split("&"):
 					if item != " ":
-						condition.append(X_counter*"X"+remove_spaces(item))
+						condition_symptom.append(X_counter*"X"+remove_spaces(item))
 				parse_line = parse_line[counter-1:]
 				X_counter += 1
 				break
-			elif X_start == 1 and char =="X":
+			elif X_start == 1 and char =="X":	# still parsing Xs
 				X_counter += 1
 			else:
-				if char != "(" and char != ")":
+				if char != "(" and char != ")":	# its not an X, we remove the paranthesis and add the signal
 					sub_line += char
 	sub_line = ""
 	for char in parse_line:
@@ -54,8 +66,8 @@ def parse_condition_symptom_in_line(parse_line):
 			sub_line += char
 	for item in sub_line.split("&"):
 		if item != " ":
-			condition.append(X_counter*"X"+remove_spaces(item))
-	return condition
+			condition_symptom.append(X_counter*"X"+remove_spaces(item))
+	return condition_symptom
 
 
 def generate_prop_dictionary(prop_file_name):

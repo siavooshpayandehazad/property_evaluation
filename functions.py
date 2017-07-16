@@ -20,6 +20,8 @@ def print_help():
 	print "     * We need to improve the property parser (for both condition and symptom)... its very primitive now!"
 	print "     * The parser doesnt parse different inputs... somehow we need to fix that!"
 	print "     * the coverage parser should be extended to also provide the branch and other coverage results!"
+	print "\nExample:"
+	print "		* python main.py -i [path/to/your/property/file] -o [prefered/name/for/testbench]"
 	return None
 
 
