@@ -43,9 +43,9 @@ def parse_cov_reports():
 	file.write("-------------------------------------------------------\n")
 	for item in range(0, len(covg_dictionary.keys())):
 		
-		file.write( item, "\t",)
+		file.write( str(item)+ "\t")
 		for percentage in covg_dictionary[item]:
-			file.write( percentage,"\t",)
+			file.write( str(percentage)+"\t")
 		file.write("\n") 
 		total_coverage_list.append(float(covg_dictionary[item][-1][:-1]))
 		if max_total < float(covg_dictionary[item][-1][:-1]):
@@ -78,6 +78,8 @@ def parse_det_cov_report():
 					  		   ...
 		}
 	"""
+	print "parsing statement coverage"
+	print "--------------"
 	stmt_covg_dictionary = {}
 	for filename in os.listdir(cov_detailed_path):
 		if filename.endswith(".txt"):
@@ -107,8 +109,8 @@ def parse_det_cov_report():
 	for index in sorted(stmt_covg_dictionary.keys()):
 		print index, "\t", sorted(stmt_covg_dictionary[index])
 		file.write(str(index)+"\t")
-		for itme in stmt_covg_dictionary[index]:
-			file.write(str(item)," ,")
+		for item in stmt_covg_dictionary[index]:
+			file.write(str(item)+" ,")
 		file.write("\n")
 	file.close()
 	return stmt_covg_dictionary
@@ -129,35 +131,133 @@ def remove_covered_statements(stmt_covg_dictionary, property_id):
 	return stmt_covg_dictionary
 
 
-def find_most_covering_prop (stmt_covg_dictionary):
+def find_most_covering_prop (covg_dictionary):
 	"""
 	goes thorugh the property dictionary with the following strucutre:
-		stmt_covg_dictionary = { line_number_0: [list of properties covering line 0],
-								 line_number_1: [list of properties covering line 1],
-					  			 ...
+		covg_dictionary = { line_number_0: [list of properties covering line 0],
+							line_number_1: [list of properties covering line 1],
+					  		...
 		}
 	and returns the property which covers most number of lines.
 
 	"""
 	big_list = []
-	for item in stmt_covg_dictionary.keys():
-		big_list += stmt_covg_dictionary[item]
+	for item in covg_dictionary.keys():
+		big_list += covg_dictionary[item]
 	most_covering_prop =  max(set(big_list), key=big_list.count)
 	return most_covering_prop
 
 
-def find_minimal_set_of_properties_stmt(stmt_covg_dictionary):
+def find_minimal_set_of_properties(covg_dictionary):
 	"""
 	returns a list of properties that cover all the statements in the cov_dictionary. 
 	"""
 	print "Starting the process of finding a sub-set of properties that cover everything covered by initial set!"
 	taken_properties = []
-	while (len(stmt_covg_dictionary.keys())>0):
-		best_prop = find_most_covering_prop(stmt_covg_dictionary)
+	while (len(covg_dictionary.keys())>0):
+		best_prop = find_most_covering_prop(covg_dictionary)
 		taken_properties.append(best_prop)
-		remove_covered_statements(stmt_covg_dictionary, best_prop)
+		remove_covered_statements(covg_dictionary, best_prop)
 
 	print "number of properties in the sub-set:", len(taken_properties) 
 	print "final set:", taken_properties
 	print "----------------------------------------"
 	return taken_properties
+
+
+def parse_det_branch_coverage():
+	print "parsing branch coverage"
+	print "--------------"
+	branch_covg_dictionary = {}
+	for filename in os.listdir(cov_detailed_path):
+		if filename.endswith(".txt"):
+			file = open(cov_detailed_path+"/"+filename, 'r')
+			enable = False
+			tb_number = int(filename[filename.index("_")+1:filename.index(".")][:-4])
+			for line in file:
+				if "Condition Details" in line:
+					enable = False
+					break
+				if enable:
+					splited_line = line[:50].split()
+					if len(splited_line) >= 3:
+						if splited_line[0].isdigit():
+							if int(splited_line[0]) > 1000:
+								print tb_number, splited_line
+							if splited_line[2] != '***0***':
+								if int(splited_line[0]) not in branch_covg_dictionary.keys():
+									branch_covg_dictionary[int(splited_line[0])]= [tb_number]
+								else:
+									if tb_number not in branch_covg_dictionary[int(splited_line[0])]:
+										branch_covg_dictionary[int(splited_line[0])].append(tb_number)
+				if "Branch Details" in line:
+					enable = True
+			file.close()
+	file = open(reports_path+"/detailed_branch_coverage_report.txt","w")
+	for index in sorted(branch_covg_dictionary.keys()):
+		print index, "\t", sorted(branch_covg_dictionary[index])
+		file.write(str(index)+"\t")
+		for item in branch_covg_dictionary[index]:
+			file.write(str(item)+" ,")
+		file.write("\n")
+	file.close()
+	return branch_covg_dictionary
+
+
+def parse_FSM_Transition_coverage():
+	print "parsing FSM transitions"
+	print "--------------"
+	transition_dict = {}
+	for filename in os.listdir(cov_detailed_path):
+		if filename.endswith(".txt"):
+			file = open(cov_detailed_path+"/"+filename, 'r')
+			enable = False
+			tb_number = int(filename[filename.index("_")+1:filename.index(".")][:-4])
+			old_line = None
+			for line in file:
+				if " Uncovered States :" in line:
+					enable = False
+					break
+				if enable == True: 
+					if line.split()[0].isdigit():
+						transition  = line.split()[3]+line.split()[4]+line.split()[5]
+						if transition in transition_dict.keys():
+							transition_dict[transition].append(tb_number)
+						else:
+							transition_dict[transition] = [tb_number]
+				if  "Line            Trans_ID           Hit_count          Transition    " in line:
+					enable = True
+				old_line  =line
+			file.close()
+	for index in sorted(transition_dict.keys()):
+		print index, transition_dict[index]
+	return transition_dict
+
+
+def parse_FSM_states_coverage():
+	print "parsing FSM covered states"
+	print "--------------"
+	state_dict = {}
+	for filename in os.listdir(cov_detailed_path):
+		if filename.endswith(".txt"):
+			file = open(cov_detailed_path+"/"+filename, 'r')
+			enable = False
+			tb_number = int(filename[filename.index("_")+1:filename.index(".")][:-4])
+			for line in file:
+				if "Covered Transitions" in line or "Uncovered States" in line:
+					enable = False
+					break
+				if enable == True: 
+					if len(line.split())>1:
+						if line.split()[1].isdigit():
+							covered_state = line.split()[0]
+							if covered_state in state_dict.keys():
+								state_dict[covered_state].append(tb_number)
+							else:
+								state_dict[covered_state]=[tb_number]
+				if  "Covered States" in line and "Uncovered States" not in line:
+					enable = True
+			file.close()
+	for index in sorted(state_dict.keys()):
+		print index, state_dict[index]
+	return state_dict
