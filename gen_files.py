@@ -18,7 +18,11 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	# TODO: we have to decide if it is fair that we have a wait statement for 1 clk cycle at the beginning of each testbench
 	initial_file_name = tb_file_name.split(".")[0]
 
-	for prop in prop_cond_dict:
+	for prop in prop_cond_dict.keys():
+		if prop not in prop_symp_dict.keys():
+			print prop_cond_dict.keys()
+			print prop_symp_dict.keys()
+			raise ValueError("property not in prop_symp_dict keys")
 		tb_name = "results/TB/"+initial_file_name+"_"+str(prop)+".vhd"
 		print "-----------------------------------------------------"
 		print "starting generation of Testbench file:", tb_name

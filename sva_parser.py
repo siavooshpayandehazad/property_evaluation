@@ -18,6 +18,9 @@ def generate_prop_dictionary_sva(prop_file_name):
 		delay = None
 		repeat_sequence = None
 		current_cycle_prop = None
+		# TODO: fix property nextstate_184;
+		if "endmodule" in line:	# this is the end of usefull part!
+			break
 		if "(rst)" in line:
 			dict_delay = 0
 			prop_cond_dict[counter] = []
@@ -80,6 +83,8 @@ def generate_prop_dictionary_sva(prop_file_name):
 			prop_symp_dict[counter] = [signal+"["+str(int(log(int(value, 2), 2)))+"]"]
 			counter += 1
 	prop_file.close()
+	print "length of condtion dictionary:", len(prop_cond_dict.keys())
+	print "length of symptom dictionary:",len(prop_symp_dict.keys())
 	return prop_cond_dict, prop_symp_dict
 
 
