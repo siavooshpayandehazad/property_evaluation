@@ -2,7 +2,6 @@
 # License: GNU GENERAL PUBLIC LICENSE Version 3
 from package import *
 
-
 def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	"""
 	generates a test bench for each property and stores it in results/TB/
@@ -107,6 +106,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		item_counter = 0	# items already written in the file 
 		clock_cycle = 0		# current clock cycle
 		tb_file.write("     -- symptom list:"+str(prop_symp_dict[prop])+"\n")
+
 		while (item_counter != len(prop_symp_dict[prop])):
 			tb_file.write("        wait for 1 ns;\n")
 			for symptom in prop_symp_dict[prop]: 
@@ -116,13 +116,13 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 					symptom = symptom.replace("[", "(")
 					symptom = symptom.replace("]", ")")
 					if clock_cycle > 0:
-						symptom = symptom[symptom.index("X"*clock_cycle)+1:]
+						symptom = symptom[symptom.index("X"*clock_cycle)+clock_cycle:]
 					if "!" in symptom:
 						symptom = symptom[symptom.index("!")+1:]
 						value = 0
 					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+clock_cycle*"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity failure;\n")
 			clock_cycle += 1
-
+		
 		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n\n")
 
