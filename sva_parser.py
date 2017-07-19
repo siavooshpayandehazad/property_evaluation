@@ -33,7 +33,6 @@ def generate_prop_dictionary_sva(prop_file_name):
 			repeat_sequence = line[repeat_start+2:repeat_end]
 			current_cycle_prop = current_cycle_prop[:current_cycle_prop.index("[*")]
 		if current_cycle_prop != None:
-			#TODO: do something about the repeat sequence
 			prop = ""
 			for char in current_cycle_prop:
 				if char != "(" and char != ")" and char != "\n" and char != "\r" and char != " ":
@@ -45,9 +44,27 @@ def generate_prop_dictionary_sva(prop_file_name):
 					refined_list.append(item[:item.index("=")])
 				else:
 					refined_list.append(item)
-			dict_delay += int(delay)
-			for item in refined_list: 
-				prop_cond_dict[counter].append(dict_delay*"X"+item)
+			if repeat_sequence != None:
+				if ":" not in repeat_sequence:
+					for i in range(0, int(repeat_sequence)):
+						dict_delay += int(delay)
+						for item in refined_list: 
+							prop_cond_dict[counter].append(dict_delay*"X"+item)
+				else:
+					repeat = 1
+					if repeat_sequence.split(":")[1] != "$":
+						repeat  = repeat_sequence.split(":")[1]
+					else:
+						pass
+						# TODO: handel $ cases!
+					for i in range(0, int(repeat)):
+						dict_delay += int(delay)
+						for item in refined_list: 
+							prop_cond_dict[counter].append(dict_delay*"X"+item)
+			else:
+				dict_delay += int(delay)
+				for item in refined_list: 
+					prop_cond_dict[counter].append(dict_delay*"X"+item)
 
 		if "|->" in line:
 			sub_line = line[line.index(">")+1:]

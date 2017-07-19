@@ -139,7 +139,6 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 
 		print "finished generation of Testbench... closing the file!"
 		tb_file.close()
-		sys.exit()
 	return None
 
 
