@@ -33,6 +33,7 @@ def generate_prop_dictionary_sva(prop_file_name):
 			repeat_sequence = line[repeat_start+2:repeat_end]
 			current_cycle_prop = current_cycle_prop[:current_cycle_prop.index("[*")]
 		if current_cycle_prop != None:
+			#TODO: do something about the repeat sequence
 			prop = ""
 			for char in current_cycle_prop:
 				if char != "(" and char != ")" and char != "\n" and char != "\r" and char != " ":

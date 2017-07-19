@@ -1,6 +1,8 @@
 # Copyright (C) 2017 Siavoosh Payandeh Azad 
 # License: GNU GENERAL PUBLIC LICENSE Version 3
 from package import *
+import sys
+
 
 def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	"""
@@ -106,9 +108,11 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		item_counter = 0	# items already written in the file 
 		clock_cycle = 0		# current clock cycle
 		tb_file.write("     -- symptom list:"+str(prop_symp_dict[prop])+"\n")
-
+		tb_file.write("        wait for 1 ns;\n")
+		idle_counter = 0
+		found = False
 		while (item_counter != len(prop_symp_dict[prop])):
-			tb_file.write("        wait for 1 ns;\n")
+			
 			for symptom in prop_symp_dict[prop]: 
 				if symptom.count('X') == clock_cycle:
 					item_counter += 1 
@@ -120,9 +124,14 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 					if "!" in symptom:
 						symptom = symptom[symptom.index("!")+1:]
 						value = 0
+					if idle_counter > 0:	
+						tb_file.write("        wait for "+str(idle_counter)+" ns;\n")
 					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+clock_cycle*"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity failure;\n")
+					idle_counter = 0
 			clock_cycle += 1
-		
+			idle_counter += 1
+
+
 		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n\n")
 
@@ -130,6 +139,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 
 		print "finished generation of Testbench... closing the file!"
 		tb_file.close()
+		sys.exit()
 	return None
 
 
