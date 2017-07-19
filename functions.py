@@ -37,12 +37,9 @@ def parse_arguments(sys_args, package_arguments):
 
 	if "-i" in sys.argv[:]:
 		package_arguments["input_property_file"] = sys.argv[sys.argv.index("-i")+1]
-		if ".rtf" not in package_arguments["input_property_file"] :
-			raise ValueError("property file should be in rtf format")
-		else:
-			if not os.path.isfile(package_arguments["input_property_file"]):
-				print "input propoerty file path is not valid"
-				sys.exit()
+		if not os.path.isfile(package_arguments["input_property_file"]):
+			print "input propoerty file path is not valid"
+			sys.exit()
 	else:
 		raise ValueError ("a valid property file is needed!")
 

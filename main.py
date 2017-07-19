@@ -10,6 +10,7 @@ from testing import *
 from gen_files import *
 from coverage_parser import *
 from property_parser import *
+from sva_parser import *
 
 # TODO: check if everything is ok with the user's system! if there is a library dependency missing etc...
 # TOOD: we need unit testing!
@@ -19,8 +20,12 @@ sys_arguments = copy.deepcopy(parse_arguments(sys.argv, sys_arguments))					# pa
 # TODO: check sys_arguments 
 generate_folders()		# generates folder structure
 # starting...
-prop_cond_dict, prop_symp_dict = generate_prop_dictionary(sys_arguments["input_property_file"])		# parse the property recieved from input file 
-report_prop_dictonary(prop_cond_dict)		# prints contecnt of the the property dictionary to console
+if ".rtf" in sys_arguments["input_property_file"]:
+	prop_cond_dict, prop_symp_dict = generate_prop_dictionary(sys_arguments["input_property_file"])		# parse the property recieved from input file 
+	report_prop_dictonary(prop_cond_dict)		# prints contecnt of the the property dictionary to console
+else:
+	prop_cond_dict, prop_symp_dict = generate_prop_dictionary_sva(sys_arguments["input_property_file"])
+
 test_prop_dicts(prop_cond_dict,prop_symp_dict)
 # here the property dictionaries are ready... 
 # moving to file genration
