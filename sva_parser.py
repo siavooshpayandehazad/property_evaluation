@@ -26,7 +26,6 @@ def generate_prop_dictionary_sva(prop_file_name):
 	prop_symp_dict = {}
 	start = False
 	for line in prop_file:
-		
 		delay = None
 		repeat_sequence = None
 		current_cycle_prop = None

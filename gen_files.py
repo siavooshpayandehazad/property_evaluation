@@ -131,7 +131,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 						value = 0
 					if idle_counter > 0:	
 						tb_file.write("        wait for "+str(idle_counter)+" ns;\n")
-					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+clock_cycle*"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity failure;\n")
+					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
 					idle_counter = 0
 			clock_cycle += 1
 			idle_counter += 1
