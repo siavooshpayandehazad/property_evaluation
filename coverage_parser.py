@@ -215,7 +215,7 @@ def parse_FSM_Transition_coverage():
 			tb_number = int(filename[filename.index("_")+1:filename.index(".")][:-4])
 			old_line = None
 			for line in file:
-				if " Uncovered States :" in line:
+				if " Uncovered States :" in line or "Uncovered Transitions" in line:
 					enable = False
 					break
 				if enable == True: 
