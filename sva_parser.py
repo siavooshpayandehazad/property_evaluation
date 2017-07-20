@@ -39,12 +39,9 @@ def generate_prop_dictionary_sva(prop_file_name):
 				delay = line[line.index("##")+2:line.index("(")]
 				current_cycle_prop = line[line.index("("):]
 			else:
+				delay = 0
 				refined_list =[]
-				for item in clean_string(line).split("&&"):
-					if "==" in item:
-						refined_list.append(item[:item.index("=")])
-					else:
-						refined_list.append(item)
+				current_cycle_prop = clean_string(line)
 			if "[*" in line:
 				repeat_start = line.index("[*") 
 				repeat_end  = line.index("]")
@@ -52,7 +49,7 @@ def generate_prop_dictionary_sva(prop_file_name):
 				current_cycle_prop = current_cycle_prop[:current_cycle_prop.index("[*")]
 			if current_cycle_prop != None:
 				refined_list = []
-				for item in clean_string(line).split("&&"):
+				for item in clean_string(line[line.index("("):]).split("&&"):
 					if "==" in item:
 						refined_list.append(item[:item.index("=")])
 					else:

@@ -78,7 +78,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 
 		tb_file.write("\n\n-- applying the stimuli\n")
 		tb_file.write("    process begin\n")
-		tb_file.write("        -- list  of stimuli:"+str(prop_cond_dict[prop])+"\n")
+		# tb_file.write("        -- list  of stimuli:"+str(prop_cond_dict[prop])+"\n")
 		next_clk = False
 		# we go through all the items and first sort the ones without X and then move to X and XX 
 		item_counter = 0	# items already written in the file 
@@ -95,15 +95,16 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 						digit =  [int(s) for s in signal_name if s.isdigit()]
 						if len(digit)>0:
 							signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
-						tb_file.write("        "+signal_name+" <= '0';\n")
+						tb_file.write("        "+signal_name+" <= '0'; ")
 					else:
 						if item != "1":
 							signal_name = item[clock_cycle:]
 							digit =  [int(s) for s in signal_name if s.isdigit()]
 							if len(digit)>0:
 								signal_name = signal_name[:signal_name.index(str(digit[0]))-1]+"("+str(digit[0])+")"
-							tb_file.write("        "+signal_name+" <= '1';\n")
+							tb_file.write("        "+signal_name+" <= '1'; ")
 			clock_cycle += 1
+			tb_file.write("\n")
 		tb_file.write("        wait;\n")
 		tb_file.write("    end process;\n\n")
 
