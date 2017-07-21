@@ -168,6 +168,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("#--           DO NOT EDIT                   --\n")
 		do_file.write("#---------------------------------------------\n")
 		do_file.write("\n")
+		
 		do_file.write("vlib work\n")
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
@@ -186,6 +187,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("coverage save coverage_"+str(prop)+".ucdb\n")
 		do_file.write("vcover report -output coverage_"+str(prop)+".txt coverage_"+str(prop)+".ucdb\n\n")
 		do_file.write("vcover report -detail -output coverage_"+str(prop)+"_det.txt coverage_"+str(prop)+".ucdb\n\n")
+		do_file.write("write transcript transcript.txt\n")
 		do_file.write("# Exit Modelsim after simulation\n")
 		do_file.write("exit\n")
 	do_file.close()

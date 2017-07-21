@@ -26,6 +26,8 @@ def generate_prop_dictionary_sva(prop_file_name):
 	prop_symp_dict = {}
 	start = False
 	for line in prop_file:
+		if "//" in line:
+			line = line[:line.index("//")]
 		delay = None
 		repeat_sequence = None
 		current_cycle_prop = None
@@ -33,48 +35,52 @@ def generate_prop_dictionary_sva(prop_file_name):
 			break
 		if "    )\n" == line:
 			start = False
-		if start == True:
-			if "##" in line and "|->" not in line: 
-				delay = line[line.index("##")+2:line.index("(")]
-				current_cycle_prop = line[line.index("("):]
-			else:
-				delay = 0
-				refined_list =[]
-				current_cycle_prop = clean_string(line)
-			if "[*" in line:
-				repeat_start = line.index("[*") 
-				repeat_end  = line.index("]")
-				repeat_sequence = line[repeat_start+2:repeat_end]
-				current_cycle_prop = current_cycle_prop[:current_cycle_prop.index("[*")]
-			if current_cycle_prop != None:
-				refined_list = []
-				for item in clean_string(line[line.index("("):]).split("&&"):
-					if "==" in item:
-						refined_list.append(item[:item.index("=")])
-					else:
-						refined_list.append(item)
-				if repeat_sequence != None:
-					if ":" not in repeat_sequence:
-						for i in range(0, int(repeat_sequence)):
-							dict_delay += int(delay)
-							for item in refined_list: 
-								prop_cond_dict[counter].append(dict_delay*"X"+item)
-					else:
-						repeat = 1
-						if repeat_sequence.split(":")[1] != "$":
-							repeat  = repeat_sequence.split(":")[1]
-						else:
-							pass
-							# TODO: handel $ cases!
-						for i in range(0, int(repeat)):
-							dict_delay += int(delay)
-							for item in refined_list: 
-								prop_cond_dict[counter].append(dict_delay*"X"+item)
+		if "##0" not in line:
+			if start == True:
+				if "##" in line and "|->" not in line: 
+					delay = line[line.index("##")+2:line.index("(")]
+					current_cycle_prop = line[line.index("("):]
 				else:
-					dict_delay += int(delay)
-					for item in refined_list: 
-						prop_cond_dict[counter].append(dict_delay*"X"+item)
-
+					delay = 0
+					refined_list =[]
+					current_cycle_prop = clean_string(line)
+				if "[*" in line:
+					repeat_start = line.index("[*") 
+					repeat_end  = line.index("]")
+					repeat_sequence = line[repeat_start+2:repeat_end]
+					current_cycle_prop = current_cycle_prop[:current_cycle_prop.index("[*")]
+				if current_cycle_prop != None:
+					refined_list = []
+					for item in clean_string(line[line.index("("):]).split("&&"):
+						if "==" in item:
+							refined_list.append(item[:item.index("=")])
+						else:
+							refined_list.append(item)
+					if repeat_sequence != None:
+						if ":" not in repeat_sequence:
+							for i in range(0, int(repeat_sequence)):
+								dict_delay += int(delay)
+								for item in refined_list: 
+									prop_cond_dict[counter].append(dict_delay*"X"+item)
+						else:
+							repeat = 1
+							if repeat_sequence.split(":")[1] != "$":
+								repeat  = repeat_sequence.split(":")[1]
+							else:
+								pass
+								# TODO: handel $ cases!
+							for i in range(0, int(repeat)):
+								dict_delay += int(delay)
+								for item in refined_list: 
+									prop_cond_dict[counter].append(dict_delay*"X"+item)
+					else:
+						dict_delay += int(delay)
+						for item in refined_list: 
+							prop_cond_dict[counter].append(dict_delay*"X"+item)
+		else:
+			pass
+			#print "*Warning:: in property ", counter, "line containing:", line, "is not parsable, skipping the line"
+			#TODO: i dont know what to do with these lines:
 		if line == "    (\n" :
 			start = True
 			dict_delay = 0

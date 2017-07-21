@@ -39,13 +39,12 @@ def parse_cov_reports():
 	best_property = None
 	total_coverage_list = []
 	file = open(reports_path+"/general_stmt_coverage_report.txt","w")
-	file.write("#\tstmt\tbranch\tstate\ttrans\ttggl\ttotal\n")
+	file.write("#\t stmt\t branch\t state\t trans\t tggl\t total\n")
 	file.write("-------------------------------------------------------\n")
 	for item in range(0, len(covg_dictionary.keys())):
-		
 		file.write( str(item)+ "\t")
 		for percentage in covg_dictionary[item]:
-			file.write( str(percentage)+"\t")
+			file.write( '%5s' %str(percentage)+"\t")
 		file.write("\n") 
 		total_coverage_list.append(float(covg_dictionary[item][-1][:-1]))
 		if max_total < float(covg_dictionary[item][-1][:-1]):
@@ -107,8 +106,8 @@ def parse_det_cov_report():
 			file.close()
 	file = open(reports_path+"/detailed_stmt_coverage_report.txt","w")
 	for index in sorted(stmt_covg_dictionary.keys()):
-		print index, "\t", sorted(stmt_covg_dictionary[index])
-		file.write(str(index)+"\t")
+		# print index, "\t", sorted(stmt_covg_dictionary[index])
+		file.write('%5s' %("#"+str(index))+"\t\t")
 		for item in stmt_covg_dictionary[index]:
 			file.write(str(item)+" ,")
 		file.write("\n")
@@ -195,8 +194,8 @@ def parse_det_branch_coverage():
 			file.close()
 	file = open(reports_path+"/detailed_branch_coverage_report.txt","w")
 	for index in sorted(branch_covg_dictionary.keys()):
-		print index, "\t", sorted(branch_covg_dictionary[index])
-		file.write(str(index)+"\t")
+		# print index, "\t", sorted(branch_covg_dictionary[index])
+		file.write('%5s' %("#"+str(index))+"\t\t")
 		for item in branch_covg_dictionary[index]:
 			file.write(str(item)+" ,")
 		file.write("\n")
@@ -229,8 +228,16 @@ def parse_FSM_Transition_coverage():
 					enable = True
 				old_line  =line
 			file.close()
+
+	file = open(reports_path+"/detailed_FSM_transiton_report.txt","w")
 	for index in sorted(transition_dict.keys()):
-		print index, transition_dict[index]
+		# print index, "\t", sorted(transition_dict[index])
+		file.write(str(index)+"\t\t"+'%5s' %str(len(transition_dict[index]))+" items\t\t\t")
+		for item in transition_dict[index]:
+			file.write(str(item)+" ,")
+		file.write("\n")
+	file.close()	
+
 	return transition_dict
 
 
@@ -258,6 +265,33 @@ def parse_FSM_states_coverage():
 				if  "Covered States" in line and "Uncovered States" not in line:
 					enable = True
 			file.close()
+
+	file = open(reports_path+"/detailed_FSM_report.txt","w")
 	for index in sorted(state_dict.keys()):
-		print index, state_dict[index]
+		# print index, "\t", sorted(state_dict[index])
+		file.write(str(index)+"\t\t"+'%5s' %str(len(state_dict[index]))+" items\t\t\t")
+		for item in state_dict[index]:
+			file.write(str(item)+" ,")
+		file.write("\n")
+	file.close()
+
 	return state_dict
+
+
+def parse_all_coverage_reports():
+	# here we have all the coverage reports 
+	# moving to parsing phase!
+	parse_cov_reports()		# parse normal coverage reports and provide statistics
+	covg_dictionary = parse_det_cov_report() # parse detail coverage reports!
+	#TODO: test the covg_dictionary
+	find_minimal_set_of_properties(covg_dictionary)	# finds minimal set of properties that covers every statement.
+
+	branch_dictionary = parse_det_branch_coverage()
+	find_minimal_set_of_properties(branch_dictionary)
+
+	FSM_transiton_dict = parse_FSM_Transition_coverage()
+	find_minimal_set_of_properties(FSM_transiton_dict)
+
+	FSM_state_dict = parse_FSM_states_coverage()
+	find_minimal_set_of_properties(FSM_state_dict)
+	return None 
