@@ -1,4 +1,4 @@
-# Copyright (C) 2017 Siavoosh Payandeh Azad 
+# Copyright (C) 2017 Siavoosh Payandeh Azad
 # License: GNU GENERAL PUBLIC LICENSE Version 3
 from package import *
 import sys
@@ -104,15 +104,15 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		tb_file.write("    process begin\n")
 		# tb_file.write("        -- list  of stimuli:"+str(prop_cond_dict[prop])+"\n")
 		next_clk = False
-		# we go through all the items and first sort the ones without X and then move to X and XX 
-		item_counter = 0	# items already written in the file 
+		# we go through all the items and first sort the ones without X and then move to X and XX
+		item_counter = 0	# items already written in the file
 		clock_cycle = 0		# current clock cycle
 		while (item_counter != len(prop_cond_dict[prop])):
-			tb_file.write("        wait for 1 ns;\n")
+			tb_file.write("        wait for 1.5 ns;\n")
 			this_clock_signals = []
 			for item in prop_cond_dict[prop]:
 				if item.count('X') == clock_cycle:
-					item_counter += 1 
+					item_counter += 1
 					if "!" in item:
 						index = item.index("!")
 						signal_name = item[index+1:]
@@ -134,17 +134,17 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 
 		tb_file.write("\n\n-- checking the symptom\n")
 		tb_file.write("    process begin\n")
-		item_counter = 0	# items already written in the file 
+		item_counter = 0	# items already written in the file
 		clock_cycle = 0		# current clock cycle
 		tb_file.write("     -- symptom list:"+str(prop_symp_dict[prop])+"\n")
-		tb_file.write("        wait for 1 ns;\n")
+		tb_file.write("        wait for 2 ns;\n")
 		idle_counter = 0
 		found = False
 		while (item_counter != len(prop_symp_dict[prop])):
-			
-			for symptom in prop_symp_dict[prop]: 
+
+			for symptom in prop_symp_dict[prop]:
 				if symptom.count('X') == clock_cycle:
-					item_counter += 1 
+					item_counter += 1
 					value = 1
 					symptom = symptom.replace("[", "(")
 					symptom = symptom.replace("]", ")")
@@ -153,9 +153,9 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 					if "!" in symptom:
 						symptom = symptom[symptom.index("!")+1:]
 						value = 0
-					if idle_counter > 0:	
+					if idle_counter > 0:
 						tb_file.write("        wait for "+str(idle_counter)+" ns;\n")
-					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
+					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSERTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
 					idle_counter = 0
 			clock_cycle += 1
 			idle_counter += 1
@@ -192,7 +192,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("#--           DO NOT EDIT                   --\n")
 		do_file.write("#---------------------------------------------\n")
 		do_file.write("\n")
-		
+
 		do_file.write("vlib work\n")
 		do_file.write("\n")
 		do_file.write("# Include files and compile them\n")
