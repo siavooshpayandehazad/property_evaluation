@@ -3,6 +3,30 @@
 from package import *
 import sys
 
+def generate_SV_properties(prop_cond_dict, prop_symp_dict):
+	tb_file = open("results/SV_Assertions.sv", "w")
+	prop_counter = 0
+	for prop in prop_cond_dict.keys():
+		tb_file.write("property property_" + str(prop_counter) + "; \n@(negedge clk) \n\t(")
+		item_counter = 0
+		for item in prop_cond_dict[prop]:
+			if item_counter == len(prop_cond_dict[prop])-1:
+				tb_file.write(item + ") |-> ")
+				for item2 in prop_symp_dict[prop]:
+					tb_file.write(item2 + "; \nendproperty\n")
+			else:
+				tb_file.write(item + " && ")
+			item_counter += 1
+		prop_counter += 1
+		tb_file.write("\n")
+	prop_counter = 0
+	for prop in prop_cond_dict.keys():
+		tb_file.write("property_"+str(prop_counter)+"_assert : assert property (property_"+str(prop_counter)+") else $error(\"property_"+str(prop_counter)+" not held!\");")
+		prop_counter += 1
+		tb_file.write("\n")
+	tb_file.close()
+
+	return None
 
 def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 	"""
@@ -84,7 +108,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		item_counter = 0	# items already written in the file 
 		clock_cycle = 0		# current clock cycle
 		while (item_counter != len(prop_cond_dict[prop])):
-			tb_file.write("        wait for 1.5 ns;\n")
+			tb_file.write("        wait for 1 ns;\n")
 			this_clock_signals = []
 			for item in prop_cond_dict[prop]:
 				if item.count('X') == clock_cycle:
@@ -113,7 +137,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		item_counter = 0	# items already written in the file 
 		clock_cycle = 0		# current clock cycle
 		tb_file.write("     -- symptom list:"+str(prop_symp_dict[prop])+"\n")
-		tb_file.write("        wait for 2 ns;\n")
+		tb_file.write("        wait for 1 ns;\n")
 		idle_counter = 0
 		found = False
 		while (item_counter != len(prop_symp_dict[prop])):
@@ -131,7 +155,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 						value = 0
 					if idle_counter > 0:	
 						tb_file.write("        wait for "+str(idle_counter)+" ns;\n")
-					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSERTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
+					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
 					idle_counter = 0
 			clock_cycle += 1
 			idle_counter += 1
@@ -187,7 +211,7 @@ def generate_do_file(tb_file_name, prop_dictionary):
 		do_file.write("coverage save coverage_"+str(prop)+".ucdb\n")
 		do_file.write("vcover report -output coverage_"+str(prop)+".txt coverage_"+str(prop)+".ucdb\n\n")
 		do_file.write("vcover report -detail -output coverage_"+str(prop)+"_det.txt coverage_"+str(prop)+".ucdb\n\n")
-		do_file.write("write transcript transcript.txt\n")
+		# do_file.write("write transcript transcript.txt\n")
 		do_file.write("# Exit Modelsim after simulation\n")
 		do_file.write("exit\n")
 	do_file.close()

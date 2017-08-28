@@ -23,11 +23,13 @@ generate_folders()		# generates folder structure
 # starting...
 if ".rtf" in sys_arguments["input_property_file"]:
 	prop_cond_dict, prop_symp_dict = generate_prop_dictionary(sys_arguments["input_property_file"])		# parse the property recieved from input file 
-	report_prop_dictonary(prop_cond_dict)		# prints contecnt of the the property dictionary to console
+	report_prop_dictonary(prop_cond_dict)		# prints contents of the the property dictionary to console
 else:
 	prop_cond_dict, prop_symp_dict = generate_prop_dictionary_sva(sys_arguments["input_property_file"])
 
 test_prop_dicts(prop_cond_dict,prop_symp_dict)
+generate_SV_properties(prop_cond_dict, prop_symp_dict)
+
 # here the property dictionaries are ready... 
 # moving to file genration
 generate_tb(sys_arguments["testbench_file"], prop_cond_dict, prop_symp_dict)	# generates the TB lists

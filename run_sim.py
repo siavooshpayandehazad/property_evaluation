@@ -16,10 +16,11 @@ def run_simulator(number_of_properties, tb_file_name):
 		os.rename("coverage_"+str(i)+".txt", "results/cov_files/coverage_"+str(i)+".txt")
 		os.rename("coverage_"+str(i)+"_det.txt", "results/cov_files/detailed/coverage_"+str(i)+"_det.txt")
 		os.rename("coverage_"+str(i)+".ucdb", "results/cov_files/coverage_"+str(i)+".ucdb")
-		file = open("transcript.txt", 'r')
+		file = open("transcript", 'r')
 		for line in file:
 			if "Error" in line:
+				print line
 				error_numbers =  int(line.split()[2][:line.split()[2].index(",")])
 				if error_numbers > 0:
-					raise ValueError("the simmulation has error(s)!")
+					raise ValueError("the simulation has error(s)!")
 	return None

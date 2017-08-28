@@ -14,6 +14,7 @@ def report_prop_dictonary(prop_dict):
 	print "parsed properties:"
 	for item in prop_dict.keys():
 		print item, "\t", prop_dict[item]
+	# exit()
 	return None
 
 
