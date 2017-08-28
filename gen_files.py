@@ -84,7 +84,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		item_counter = 0	# items already written in the file 
 		clock_cycle = 0		# current clock cycle
 		while (item_counter != len(prop_cond_dict[prop])):
-			tb_file.write("        wait for 1 ns;\n")
+			tb_file.write("        wait for 1.5 ns;\n")
 			this_clock_signals = []
 			for item in prop_cond_dict[prop]:
 				if item.count('X') == clock_cycle:
@@ -113,7 +113,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 		item_counter = 0	# items already written in the file 
 		clock_cycle = 0		# current clock cycle
 		tb_file.write("     -- symptom list:"+str(prop_symp_dict[prop])+"\n")
-		tb_file.write("        wait for 1 ns;\n")
+		tb_file.write("        wait for 2 ns;\n")
 		idle_counter = 0
 		found = False
 		while (item_counter != len(prop_symp_dict[prop])):
@@ -131,7 +131,7 @@ def generate_tb(tb_file_name, prop_cond_dict, prop_symp_dict):
 						value = 0
 					if idle_counter > 0:	
 						tb_file.write("        wait for "+str(idle_counter)+" ns;\n")
-					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSIRTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
+					tb_file.write("        assert ("+str(symptom)+" = '"+ str(value)+ "') report \"ASSERTION ["+str(clock_cycle)+"X"+str(symptom)+" = "+ str(value)+"] FAILED\" severity error;\n")
 					idle_counter = 0
 			clock_cycle += 1
 			idle_counter += 1
