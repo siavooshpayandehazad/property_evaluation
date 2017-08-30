@@ -10,7 +10,7 @@ def run_simulator(number_of_properties, tb_file_name):
 	file = open("transcript", 'w')
 	file.close()
 	initial_file_name = tb_file_name.split(".")[0]
-	for i in range(0, number_of_properties-1):
+	for i in range(0, number_of_properties):
 		print "-------------------------------------------------------------------------------------------"
 		print "\033[32mrunning testbench: ",i,"\033[39m"
 		do_file_name = "results/do_files/sim_"+str(i)+".do"
