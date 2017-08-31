@@ -10,6 +10,7 @@ from math import log10
 
 directory = "Faulty_Designs/"
 results_directory = "results/"
+testbench_directory = "Testbench/"
 
 
 def find_set_coverage(assertions_dictionary, chosen_properties, debug):
@@ -36,7 +37,6 @@ def find_set_coverage(assertions_dictionary, chosen_properties, debug):
 def parse_assertion_reports():
 	"""
 	parses the assertion reports:
-		assertion_dictionary = { ?? }
 	"""
 	print "Parsing assertions"
 	print "--------------"
@@ -92,68 +92,68 @@ def parse_assertion_reports():
 	return assertions_dictionary
 
 
-# os.system("rm -rf do_files") 
-# os.system("rm -rf results") 
+os.system("rm -rf do_files") 
+os.system("rm -rf results") 
 
-# os.system("mkdir do_files") 
-# os.system("mkdir results") 
+os.system("mkdir do_files") 
+os.system("mkdir results") 
 
 file_counter = 0
 
 print "Directory has " + str(len(os.listdir(directory))) + " files."
 
 for filename in os.listdir(directory):
-	if filename.startswith("faulty_design"):
-		do_filename = open("do_files/sim_faulty_design_"+str(file_counter)+".do", "w")
+	# if filename.startswith("faulty_design"):
+	do_filename = open("do_files/sim_faulty_design_"+str(file_counter)+".do", "w")
 
-		do_filename.write("#---------------------------------------------\n")
-		do_filename.write("#-- THIS FILE IS GENERATED AUTOMATICALLY    --\n")
-		do_filename.write("#--           DO NOT EDIT                   --\n")
-		do_filename.write("#---------------------------------------------\n")
-		do_filename.write("\n")
+	do_filename.write("#---------------------------------------------\n")
+	do_filename.write("#-- THIS FILE IS GENERATED AUTOMATICALLY    --\n")
+	do_filename.write("#--           DO NOT EDIT                   --\n")
+	do_filename.write("#---------------------------------------------\n")
+	do_filename.write("\n")
 
-		do_filename.write("# Include files and compile them\n")
-		do_filename.write("vlog -work work  \"state_defines.v\"\n")
-		do_filename.write("vlog -work work  \"parameters.v\"\n")
-		do_filename.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx \"" + directory + filename + "\"\n")
-		do_filename.write("vlog -sv \"arbiter_tb.sv\"\n")
-		do_filename.write("\n")
+	do_filename.write("# Include files and compile them\n")
+	do_filename.write("vlog -work work  \"DUTs/state_defines.v\"\n")
+	do_filename.write("vlog -work work  \"DUTs/parameters.v\"\n")
+	do_filename.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx \"" + directory + filename + "\"\n")
+	do_filename.write("vlog -sv \""+ testbench_directory + "arbiter_tb.sv\"\n")
+	do_filename.write("\n")
 
-		do_filename.write("# Start the simulation\n")
-		do_filename.write("vsim -assertdebug -coverage -voptargs=\"+cover=bcestfx\" work.arbiter_tb\n")
-		do_filename.write("\n")
+	do_filename.write("# Start the simulation\n")
+	do_filename.write("vsim -assertdebug -coverage -voptargs=\"+cover=bcestfx\" work.arbiter_tb\n")
+	do_filename.write("\n")
 
-		do_filename.write("# View Assertions\n")
-		do_filename.write("view assertions\n")
-		do_filename.write("\n")
+	do_filename.write("# View Assertions\n")
+	do_filename.write("view assertions\n")
+	do_filename.write("\n")
 
-		do_filename.write("# Run the simulation\n")
-		do_filename.write("run -all\n")
-		do_filename.write("\n")
+	do_filename.write("# Run the simulation\n")
+	do_filename.write("run -all\n")
+	do_filename.write("\n")
 
-		do_filename.write("# save the coverage reports\n")
-		do_filename.write("coverage save results/coverage_arbiter_"+str(file_counter)+".ucdb\n")
+	do_filename.write("# save the coverage reports\n")
+	do_filename.write("coverage save results/coverage_arbiter_"+str(file_counter)+".ucdb\n")
 
 
-		do_filename.write("vcover report -assert -detail -output results/assertion_report_det_"+str(file_counter)+".txt results/coverage_arbiter_" + str(file_counter) + ".ucdb\n")
-		do_filename.write("\n")
+	do_filename.write("vcover report -assert -detail -output results/assertion_report_det_"+str(file_counter)+".txt results/coverage_arbiter_" + str(file_counter) + ".ucdb\n")
+	do_filename.write("\n")
 
-		do_filename.write("# Exit Modelsim after simulation\n")
-		do_filename.write("exit\n")
+	do_filename.write("# Exit Modelsim after simulation\n")
+	do_filename.write("exit\n")
 
-	 	do_filename.close()
-		file_counter += 1
+ 	do_filename.close()
+	file_counter += 1
 
 design_number = 1
 do_files_directory = "do_files/"
 
 
-# for filename in os.listdir(do_files_directory):
-# 	print "-------------------------------------------------------------------------------------------"
-# 	print "\033[32mNow processing file: ",str(filename),"\033[39m"
-# 	os.system("vsim -do " + do_files_directory + filename + " -batch")
-# 	print "Simulated faulty design " + str(design_number)
-# 	design_number += 1
+for filename in os.listdir(do_files_directory):
+	print "-------------------------------------------------------------------------------------------"
+	print "\033[32mNow processing file: ",str(filename),"\033[39m"
+	os.system("vsim -do " + do_files_directory + filename + " -batch")
+	print "Simulated faulty design " + str(design_number)
+	design_number += 1
 
 parse_assertion_reports()
 
