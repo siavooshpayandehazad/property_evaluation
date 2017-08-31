@@ -52,7 +52,7 @@ def parse_assertion_reports():
 				if "arbiter_tb.sv" in line:
 					parameters = []
 
-					for item in line[:55].split(" "):
+					for item in line[:57].split(" "):
 						if item != '' : 
 							parameters.append(item)
 							parameters[0]="Assertion number " + str(property_number)
