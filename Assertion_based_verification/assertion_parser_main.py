@@ -32,8 +32,6 @@ def find_set_coverage(assertions_dictionary, chosen_properties, debug):
 	return covered_designs.count(1)
 
 
-
-
 def parse_assertion_reports():
 	"""
 	parses the assertion reports:
@@ -44,15 +42,15 @@ def parse_assertion_reports():
 	for filename in os.listdir(results_directory):
 		if filename.endswith(".txt"):
 			assertion_file = open(results_directory+filename, 'r')
-			print assertion_file
+			# print assertion_file
 			line = assertion_file.readline()
 			property_number = None
 			while line != "":
-				
-				if "arbiter_tb.sv" in line:
+				# if "arbiter_tb.sv" in line:
+				if "bfm_arbiter.sv" in line:
 					parameters = []
-
-					for item in line[:57].split(" "):
+					for item in line[:58].split(" "):
+						print item
 						if item != '' : 
 							parameters.append(item)
 							parameters[0]="Assertion number " + str(property_number)
@@ -89,6 +87,17 @@ def parse_assertion_reports():
 	print find_set_coverage(assertions_dictionary, chosen_prop,True)
 	for item in assertions_dictionary.keys():
 		print item, find_set_coverage(assertions_dictionary, [item], False)
+	print "++++++++++++++++"
+	#find_set_coverage(assertions_dictionary, [2,21,3,22], True)
+	#find_set_coverage(assertions_dictionary, [22,17,21,16], True)
+	#find_set_coverage(assertions_dictionary, [2,21,3,22,16,4,6,5,7], True)
+	#find_set_coverage(assertions_dictionary,  [22,17,21,16,9,11,8,6,5], True)
+
+	#find_set_coverage(assertions_dictionary, [25,23,12,18,17,9,11,10,8], True)
+	#find_set_coverage(assertions_dictionary, [10,18,12,23,25,4,3,2,7], True)
+
+	#find_set_coverage(assertions_dictionary, [8,10,11,9], True)
+	find_set_coverage(assertions_dictionary, [18,12,23,25], True)
 	return assertions_dictionary
 
 
@@ -116,11 +125,14 @@ for filename in os.listdir(directory):
 	do_filename.write("vlog -work work  \"DUTs/state_defines.v\"\n")
 	do_filename.write("vlog -work work  \"DUTs/parameters.v\"\n")
 	do_filename.write("vlog -work work -cover bcesfx -vopt +incdir+ -cover bcesfx \"" + directory + filename + "\"\n")
-	do_filename.write("vlog -sv \""+ testbench_directory + "arbiter_tb.sv\"\n")
+	# do_filename.write("vlog -sv \""+ testbench_directory + "arbiter_tb.sv\"\n")
+	do_filename.write("vlog -sv \""+ testbench_directory + "bfm_arbiter.sv\"\n")
+	do_filename.write("vlog -sv \""+ testbench_directory + "tb_userinterface.sv\"\n")
 	do_filename.write("\n")
 
 	do_filename.write("# Start the simulation\n")
-	do_filename.write("vsim -assertdebug -coverage -voptargs=\"+cover=bcestfx\" work.arbiter_tb\n")
+	# do_filename.write("vsim -assertdebug -coverage -voptargs=\"+cover=bcestfx\" work.arbiter_tb\n")
+	do_filename.write("vsim -assertdebug -coverage -voptargs=\"+cover=bcestfx\" work.tb_userinterface\n")
 	do_filename.write("\n")
 
 	do_filename.write("# View Assertions\n")
