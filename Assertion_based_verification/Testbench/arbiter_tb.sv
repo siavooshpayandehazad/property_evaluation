@@ -43,103 +43,103 @@ arbiter DUT (clk, rst, lflit_id, nflit_id, eflit_id, wflit_id, sflit_id, llength
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[2] <= 1;         sreq <= 1; 
         #(10)
     
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[2] <= 0;         lflit_id[1] <= 0;         nflit_id[2] <= 0;         eflit_id[2] <= 0;         wflit_id[2] <= 0;         sflit_id[2] <= 0;         sreq <= 1; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 1;         lreq <= 0;         nreq <= 0;         ereq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 1;         lreq <= 0;         nreq <= 0;         ereq <= 0;         wreq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 1;         nreq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 0;         nflit_id[0] <= 0;         eflit_id[0] <= 0;         wflit_id[0] <= 0;         sflit_id[0] <= 0;         lreq <= 1;         nreq <= 1;         wreq <= 0;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 0;         nflit_id[0] <= 0;         eflit_id[0] <= 0;         wflit_id[0] <= 0;         sflit_id[0] <= 0;         lreq <= 0;         nreq <= 1;         ereq <= 1;         wreq <= 0;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 0;         nflit_id[0] <= 0;         eflit_id[0] <= 0;         wflit_id[0] <= 0;         sflit_id[0] <= 0;         lreq <= 0;         nreq <= 0;         ereq <= 1;         wreq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 0;         nflit_id[0] <= 0;         eflit_id[0] <= 0;         wflit_id[0] <= 0;         sflit_id[0] <= 0;         nreq <= 1;         wreq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[2] <= 1;         lflit_id[0] <= 0;         nflit_id[0] <= 0;         eflit_id[0] <= 0;         wflit_id[0] <= 0;         sflit_id[0] <= 0;         lreq <= 1;         nreq <= 1;         wreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[0] <= 1;         lreq <= 1;         nreq <= 1;         wreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         nreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[2] <= 1;         lreq <= 0;         nreq <= 1;         ereq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         lflit_id[2] <= 0;         nflit_id[2] <= 0;         eflit_id[2] <= 0;         wflit_id[2] <= 0;         sflit_id[2] <= 0;         lreq <= 0;         nreq <= 1;         ereq <= 1;         wreq <= 1;         sreq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         ereq <= 0; 
         #(10)
 
         rst <= 1;
-        #(10)        
+        #(20)        
         reset();
         rst <= 0;         wreq <= 0; 
         #(10)
